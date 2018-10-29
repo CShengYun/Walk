@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Walk</string>
+    <string name="title_activity_registered_ui">RegisteredUI</string>
+</resources>
