@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.txzh.walk.HomePage.WalkHome;
 import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.Register.RegisteredUI;
 import com.txzh.walk.Register.RetrievePassword;
@@ -164,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         String message = object.getString("message");
                                         if("true".equals(success)){
                                             Toast.makeText(MainActivity.this, ""+success, Toast.LENGTH_SHORT).show();
-                                            intent = new Intent(MainActivity.this, RegisteredUI.class);
+                                            intent = new Intent(MainActivity.this, WalkHome.class);
                                             startActivity(intent);
                                         }else {
                                             Toast.makeText(MainActivity.this, ""+message, Toast.LENGTH_SHORT).show();

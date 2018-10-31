@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HomePage.WalkHome">
+
+
+    <com.txzh.walk.MyViewPager.MyViewPager
+        android:id="@+id/viewpager"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_heightPercent="89%"
+        app:layout_widthPercent="100%"
+        android:background="#ffffff">
+    </com.txzh.walk.MyViewPager.MyViewPager>
+
+
+
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:paddingTop="6dp"
+        app:layout_heightPercent="11%"
+        app:layout_widthPercent="100%"
+        android:background="@color/colorBlue"
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_map_walk_home"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:drawableTop="@drawable/map_32"
+            android:gravity="center_horizontal|center_vertical"
+            android:text="地图"
+            android:textSize="16dp"
+            android:textColor="#ffffff"/>
+        <TextView
+            android:id="@+id/tv_group_walk_home"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:drawableTop="@drawable/group_32"
+            android:gravity="center_horizontal|center_vertical"
+            android:text="群组"
+            android:textSize="16dp"
+            android:textColor="#ffffff"/>
+        <TextView
+            android:id="@+id/tv_news_walk_home"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:drawableTop="@drawable/news_32"
+            android:gravity="center_horizontal|center_vertical"
+            android:text="消息"
+            android:textSize="16dp"
+            android:textColor="#ffffff"/>
+        <TextView
+            android:id="@+id/tv_personal_walk_home"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:drawableTop="@drawable/personal_32"
+            android:gravity="center_horizontal|center_vertical"
+            android:text="我的"
+            android:textSize="16dp"
+            android:textColor="#ffffff"/>
+
+    </LinearLayout>
+
+
+</android.support.percent.PercentRelativeLayout>
+
