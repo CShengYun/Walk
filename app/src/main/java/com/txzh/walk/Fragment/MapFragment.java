@@ -2,6 +2,7 @@ package com.txzh.walk.Fragment;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,8 @@ import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.txzh.walk.Listener.LocationListener.MyLocationListener;
 import com.txzh.walk.R;
 
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment{
+    @SuppressWarnings("unused")
     public MapView mMapView;
     View view;
 
@@ -27,39 +29,40 @@ public class MapFragment extends Fragment {
 
     public LocationClient mLocationClient = null;//定义LocationClient
 
-    private MyLocationListener myListener = new MyLocationListener();//继承BDAbstractLocationListener的class
+    public MyLocationListener myListener = new MyLocationListener();//继承BDAbstractLocationListener的class
 
 
 
-    public void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-        SDKInitializer.initialize(getActivity().getApplicationContext());
-        SDKInitializer.setCoordType(CoordType.BD09LL);
-    }
+//    public void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//
+//        System.out.println("我滑动了第yi个界面11");
+//    }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        System.out.println("我滑动了第yi个界面11");
-        view = inflater.inflate(R.layout.fragment_map, container, false);
+        SDKInitializer.initialize(getActivity().getApplicationContext());
+        SDKInitializer.setCoordType(CoordType.BD09LL);
 
-        mMapView = (MapView) view.findViewById(R.id.bmapView);
-
-        obtain();//获取自己位置
-        return view;
-    }
-
-    public void obtain(){
-        //获取地图实例对象
-        mBaiduMap = mMapView.getMap();
-        // 开启定位图层
-        mBaiduMap.setMyLocationEnabled(true);
-        //设置定位图标是否有箭头
-        mBaiduMap.setMyLocationConfiguration(new MyLocationConfiguration(MyLocationConfiguration.LocationMode.FOLLOWING, true,null));
         //声明LocationClient类
         mLocationClient = new LocationClient(getActivity().getApplicationContext());
         //注册监听函数
         mLocationClient.registerLocationListener(myListener);
+        view = inflater.inflate(R.layout.fragment_map, container, false);
 
+        mMapView = (MapView) view.findViewById(R.id.bmapView);
+
+        initLocation();                     //获得自己位置
+
+        return view;
+    }
+
+    //获得自己位置
+    public void initLocation(){
+        mBaiduMap = mMapView.getMap();                  //获取地图实例对象
+
+        mBaiduMap.setMyLocationEnabled(true);                   // 开启定位图层
+
+        mBaiduMap.setMyLocationConfiguration(new MyLocationConfiguration(MyLocationConfiguration.LocationMode.FOLLOWING, true,null));//设置定位图标是否有箭头
 
         LocationClientOption option = new LocationClientOption();
         option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
@@ -108,6 +111,7 @@ public class MapFragment extends Fragment {
         //可选，设置是否需要过滤GPS仿真结果，默认需要，即参数为false
 
         option.setIsNeedAddress(true);
+        mLocationClient.setLocOption(option);
     }
 
 
@@ -135,6 +139,19 @@ public class MapFragment extends Fragment {
         super.onPause();
         //在activity执行onPause时执行mMapView. onPause ()，实现地图生命周期管理
         mMapView.onPause();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {        //核心方法，避免因Fragment跳转导致地图崩溃
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser == true) {
+            // if this view is visible to user, start to request user location
+     //       mLocationClient.start();
+        } else if (isVisibleToUser == false) {
+            // if this view is not visible to user, stop to request user
+            // location
+       //     mLocationClient.stop();
+        }
     }
 
 
