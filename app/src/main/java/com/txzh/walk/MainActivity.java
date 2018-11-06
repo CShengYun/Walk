@@ -1,10 +1,14 @@
 package com.txzh.walk;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -14,9 +18,10 @@ import android.widget.Toast;
 
 import com.txzh.walk.HomePage.WalkHome;
 import com.txzh.walk.NetWork.NetWorkIP;
+import com.txzh.walk.Register.RegisteredUI;
 import com.txzh.walk.Register.RetrievePassword;
-import com.txzh.walk.ToolClass.Tools;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,6 +38,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    private static final int BAIDU_READ_PHONE_STATE =10;
     protected Typeface typeface;
     private Intent intent;
     public static TextView tv_AppName,tv_forget_password,tv_registered_account;
@@ -47,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);  //去掉标题栏
         setContentView(R.layout.activity_main);
-
+        showContacts();
         init();
 
     }
@@ -75,13 +81,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         id = view.getId();
         switch (id ){
             case R.id.btn_login:
-               accounts = et_accounts.getText().toString().trim();
+                intent = new Intent(MainActivity.this, WalkHome.class);
+                startActivity(intent);
+                accounts = et_accounts.getText().toString().trim();
                 password = et_password.getText().toString().trim();
                 if(judAccounts()){
                     Login(accounts,password);
                 }
-               //intent = new Intent(this,WalkHome.class);
-               //startActivity(intent);
                 break;
             case R.id.tv_forget_password:
                 //Toast.makeText(this, "bbbb", Toast.LENGTH_SHORT).show();
@@ -152,37 +158,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if(!response.isSuccessful()){
                             return;
                         }
-
-                        JSONObject object = null;
-                        String success = null;
-                        String message = null;
-                        try {
-                            object = new JSONObject(response.body().string());
-                            success = object.getString("success");
-                            message = object.getString("message");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-
-                        final String finalSuccess = success;
-                        final String finalMessage = message;
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 //Toast.makeText(RetrievePassword.this, ""+b, Toast.LENGTH_SHORT).show();
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response.body().string());
+                                    String success = jsonObject.getString("success");
+                                    String message = jsonObject.getString("message");
+                                    Log.i("bbbb","我是success："+success);
 
-                                    //JSONArray array = new JSONArray(response.body().string());
-
-                                    if("true".equals(finalSuccess)){
-                                        Toast.makeText(MainActivity.this, ""+ finalSuccess, Toast.LENGTH_SHORT).show();
-                                        intent = new Intent(MainActivity.this, WalkHome.class);
-                                        startActivity(intent);
+                                        if("true".equals(success)){
+                                            Toast.makeText(MainActivity.this, ""+success, Toast.LENGTH_SHORT).show();
+                                            intent = new Intent(MainActivity.this, WalkHome.class);
+                                            startActivity(intent);
                                         }else {
-                                        Toast.makeText(MainActivity.this, ""+ finalMessage, Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(MainActivity.this, ""+message, Toast.LENGTH_SHORT).show();
                                         }
-                                    Tools.setAccounts(accounts);
-                                    //Log.i("bbbb","success:"+success+"message:"+message);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         });
                     }
@@ -191,11 +188,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }).start();
     }
 
-    //退出程序
-    protected void onNewIntent(Intent intent1){
-        super.onNewIntent(intent1);
-        if ((Intent.FLAG_ACTIVITY_CLEAR_TOP & intent1.getFlags()) != 0) {
-            finish();
+
+
+    public void showContacts(){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(getApplicationContext(),"没有权限,请手动开启定位权限",Toast.LENGTH_SHORT).show();
+            // 申请一个（或多个）权限，并提供用于回调返回的获取码（用户定义）
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_PHONE_STATE}, BAIDU_READ_PHONE_STATE);
         }
     }
+
+
 }

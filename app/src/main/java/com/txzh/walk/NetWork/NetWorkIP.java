@@ -7,4 +7,7 @@ public class NetWorkIP {
     public static String URL_login = URL+"/login";
     public static String URL_forgetPassword = URL+"/forgetPasswordCheckPhone";
     public static String URL_newPassword = URL+"/forgetPasswordResetPassword";
+    public static String URL_obtainAllGroupId = URL+"/obtainAllGroupId";
+    public static String URL_obtainGroupMember = URL+"/obtainGroupMember";
+    public static String URL_obtainGroupPositionInfo = URL+"/obtainGroupPositionInfo";
 }

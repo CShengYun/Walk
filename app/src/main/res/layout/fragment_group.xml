@@ -1,11 +1,96 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <TextView
-        android:id="@+id/tv_group"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="我是群组"/>
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/group_linear"
+        android:layout_alignParentTop="true"
+        app:layout_heightPercent="10%"
+        app:layout_widthPercent="100%"
+        android:background="@color/Blue"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/group_tv_search"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:background="@drawable/group_search_group_24dp"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="6"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="我的群组"
+            android:textSize="25dp"
+            android:textColor="@color/White"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/group_tv_create_group"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:background="@drawable/group_create_group_24dp"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_below="@+id/group_linear"
+        android:layout_marginTop="5dp"
+        app:layout_widthPercent="100%"
+        app:layout_heightPercent="90%"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/group_tv_manage_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="我管理的群"
+            android:gravity="center_vertical"
+            android:drawableLeft="@drawable/group_arrow_right_32dp"
+            android:drawablePadding="10dp"
+            android:padding="10dp"
+            android:textSize="20dp"/>
+
+        <ListView
+            android:id="@+id/group_lv_manage_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="30dp"
+            android:visibility="gone">
+
+
+        </ListView>
+
+        <TextView
+            android:id="@+id/group_tv_add_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/group_arrow_right_32dp"
+            android:drawablePadding="10dp"
+            android:gravity="center_vertical"
+            android:padding="10dp"
+            android:text="我加入的群"
+            android:textSize="20dp" />
+
+        <ListView
+            android:id="@+id/group_lv_add_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="30dp"
+            android:visibility="gone">
+
+
+        </ListView>
+
+    </LinearLayout>
+
+
+</android.support.percent.PercentRelativeLayout>
