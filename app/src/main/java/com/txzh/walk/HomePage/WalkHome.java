@@ -1,10 +1,8 @@
 package com.txzh.walk.HomePage;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +24,7 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
     public MapFragment mapFragment;
     public NewsFragment newsFragment;
     public PersonalFragment personalFragment;
-    private MyViewPager viewPager;
+    private static MyViewPager viewPager;
     private List<Fragment> fragments;
 
     private TextView tv_map_walk_home,tv_group_walk_home,tv_news_walk_home,tv_personal_walk_home;

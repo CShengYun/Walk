@@ -71,7 +71,8 @@
             android:layout_weight="3"
             android:gravity="center"
             android:background="@drawable/edittextsharp"
-            android:drawableLeft="@drawable/password_icon"/>
+            android:drawableLeft="@drawable/password_icon"
+            android:password="true"/>
 
         <TextView
             android:layout_width="0dp"

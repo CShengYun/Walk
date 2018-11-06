@@ -15,7 +15,6 @@ import com.txzh.walk.MainActivity;
 import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.R;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -114,29 +113,33 @@ public class NewPassword extends AppCompatActivity implements View.OnClickListen
                         if(!response.isSuccessful()){
                             return;
                         }
+
+                        JSONObject object = null;
+                        String success = null;
+                        String message = null;
+                        try {
+                            object = new JSONObject(response.body().string());
+                            success = object.getString("success");
+                            message = object.getString("message");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        final String finalSuccess = success;
+                        final String finalMessage = message;
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                try {
-                                    JSONArray array = new JSONArray(response.body().string());
 
-                                    for(int i=0;i<array.length();i++){
-                                        JSONObject object = (JSONObject)array.get(i);
-                                        String success = object.getString("success");
-                                        String message = object.getString("message");
-                                        if("true".equals(success)){
-                                            Toast.makeText(NewPassword.this, ""+message, Toast.LENGTH_SHORT).show();
-                                            intent = new Intent(NewPassword.this, MainActivity.class);
-                                            startActivity(intent);
+
+                                    if("true".equals(finalSuccess)){
+                                        Toast.makeText(NewPassword.this, ""+ finalMessage, Toast.LENGTH_SHORT).show();
+                                        intent = new Intent(NewPassword.this, MainActivity.class);
+                                        startActivity(intent);
                                         }else {
-                                            Toast.makeText(NewPassword.this, ""+message, Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(NewPassword.this, ""+ finalMessage, Toast.LENGTH_SHORT).show();
                                         }
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+
                             }
                         });
                     }

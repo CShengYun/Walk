@@ -13,8 +13,8 @@ import android.widget.Toast;
 import com.txzh.walk.MainActivity;
 import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.R;
+import com.txzh.walk.ToolClass.Tools;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -143,30 +143,35 @@ public class RegisteredUI extends AppCompatActivity implements View.OnClickListe
                         if(!response.isSuccessful()){
                             return;
                         }
+
+                        JSONObject object = null;
+                        String success = null;
+                        String message = null;
+                        try {
+                            object = new JSONObject(response.body().string());
+                            success = object.getString("success");
+                            message = object.getString("message");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        final String finalSuccess = success;
+                        final String finalMessage = message;
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 //Toast.makeText(RetrievePassword.this, ""+b, Toast.LENGTH_SHORT).show();
-                                try {
-                                    JSONArray array = new JSONArray(response.body().string());
-                                    for(int i=0;i<array.length();i++){
-                                        JSONObject object = (JSONObject)array.get(i);
-                                        String success = object.getString("success");
-                                        String message = object.getString("message");
-                                        if("true".equals(success)){
-                                            Toast.makeText(RegisteredUI.this, ""+success, Toast.LENGTH_SHORT).show();
-                                            intent = new Intent(RegisteredUI.this, MainActivity.class);
-                                            startActivity(intent);
-                                        }else {
-                                            Toast.makeText(RegisteredUI.this, ""+message, Toast.LENGTH_SHORT).show();
-                                        }
+
+                                    if("true".equals(finalSuccess)){
+                                        Toast.makeText(RegisteredUI.this, ""+ finalSuccess, Toast.LENGTH_SHORT).show();
+                                        intent = new Intent(RegisteredUI.this, MainActivity.class);
+                                        startActivity(intent);
+                                        Tools.setAccounts(accounts);
+                                    }else {
+                                        Toast.makeText(RegisteredUI.this, ""+ finalMessage, Toast.LENGTH_SHORT).show();
                                     }
+
                                     //Log.i("bbbb","success:"+success+"message:"+message);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
                             }
                         });
                     }

@@ -21,7 +21,6 @@ import com.txzh.walk.MainActivity;
 import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.R;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -283,36 +282,39 @@ public class RetrievePassword extends AppCompatActivity implements View.OnClickL
                             Toast.makeText(RetrievePassword.this, "无响应", Toast.LENGTH_SHORT).show();
                             return;
                         }
+
+                        JSONObject object = null;
+                        String success = null;
+                        String message = null;
+                        try {
+                            object = new JSONObject(response.body().string());
+                            success = object.getString("success");
+                            message = object.getString("message");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        final String finalSuccess = success;
+                        final String finalMessage = message;
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 //Toast.makeText(RetrievePassword.this, ""+b, Toast.LENGTH_SHORT).show();
-                                try {
-                                    JSONArray array = new JSONArray(response.body().string());
-                                    for(int i=0;i<array.length();i++){
-                                        JSONObject object = (JSONObject)array.get(i);
-                                        String success = object.getString("success");
-                                        String message = object.getString("message");
-                                        if("true".equals(success)){
-                                            getCord();
-                                            Log.i("cccc","1"+success);
-                                        }else {
-                                            if(MainActivity.id == R.id.tv_registered_account){
-                                                Toast.makeText(RetrievePassword.this, ""+message, Toast.LENGTH_SHORT).show();
-                                                Log.i("cccc","2"+success);
-                                                Log.i("cccc","3"+message);
-                                            }else if(MainActivity.id == R.id.tv_forget_password){
-                                                Toast.makeText(RetrievePassword.this, "手机号验证失败", Toast.LENGTH_SHORT).show();
-                                            }
+                                    //JSONArray array = new JSONArray(response.body().string());
 
+                                    if("true".equals(finalSuccess)){
+                                        getCord();
+                                        Log.i("cccc","1"+ finalSuccess);
+                                    }else {
+                                        if(MainActivity.id == R.id.tv_registered_account){
+                                            Toast.makeText(RetrievePassword.this, ""+ finalMessage, Toast.LENGTH_SHORT).show();
+                                            Log.i("cccc","2"+ finalSuccess);
+                                            Log.i("cccc","3"+ finalMessage);
+                                        }else if(MainActivity.id == R.id.tv_forget_password){
+                                            Toast.makeText(RetrievePassword.this, "手机号验证失败", Toast.LENGTH_SHORT).show();
                                         }
-                                    }
 
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                                    }
                             }
                         });
 

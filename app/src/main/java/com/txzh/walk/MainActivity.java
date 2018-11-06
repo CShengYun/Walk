@@ -5,7 +5,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -15,10 +14,9 @@ import android.widget.Toast;
 
 import com.txzh.walk.HomePage.WalkHome;
 import com.txzh.walk.NetWork.NetWorkIP;
-import com.txzh.walk.Register.RegisteredUI;
 import com.txzh.walk.Register.RetrievePassword;
+import com.txzh.walk.ToolClass.Tools;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -77,11 +75,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         id = view.getId();
         switch (id ){
             case R.id.btn_login:
-                accounts = et_accounts.getText().toString().trim();
+               accounts = et_accounts.getText().toString().trim();
                 password = et_password.getText().toString().trim();
                 if(judAccounts()){
                     Login(accounts,password);
                 }
+               //intent = new Intent(this,WalkHome.class);
+               //startActivity(intent);
                 break;
             case R.id.tv_forget_password:
                 //Toast.makeText(this, "bbbb", Toast.LENGTH_SHORT).show();
@@ -152,36 +152,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if(!response.isSuccessful()){
                             return;
                         }
+
+                        JSONObject object = null;
+                        String success = null;
+                        String message = null;
+                        try {
+                            object = new JSONObject(response.body().string());
+                            success = object.getString("success");
+                            message = object.getString("message");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        final String finalSuccess = success;
+                        final String finalMessage = message;
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 //Toast.makeText(RetrievePassword.this, ""+b, Toast.LENGTH_SHORT).show();
-                                try {
-                                    JSONArray array = new JSONArray(response.body().string());
-                                    Log.i("bbbb",""+array);
-                                    for(int i=0;i<array.length();i++){
-                                        JSONObject object = (JSONObject)array.get(i);
-                                        String success = object.getString("success");
-                                        String message = object.getString("message");
-                                        if("true".equals(success)){
-                                            Toast.makeText(MainActivity.this, ""+success, Toast.LENGTH_SHORT).show();
-                                            intent = new Intent(MainActivity.this, WalkHome.class);
-                                            startActivity(intent);
+
+                                    //JSONArray array = new JSONArray(response.body().string());
+
+                                    if("true".equals(finalSuccess)){
+                                        Toast.makeText(MainActivity.this, ""+ finalSuccess, Toast.LENGTH_SHORT).show();
+                                        intent = new Intent(MainActivity.this, WalkHome.class);
+                                        startActivity(intent);
                                         }else {
-                                            Toast.makeText(MainActivity.this, ""+message, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(MainActivity.this, ""+ finalMessage, Toast.LENGTH_SHORT).show();
                                         }
-                                    }
+                                    Tools.setAccounts(accounts);
                                     //Log.i("bbbb","success:"+success+"message:"+message);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
                             }
                         });
                     }
                 });
             }
         }).start();
+    }
+
+    //退出程序
+    protected void onNewIntent(Intent intent1){
+        super.onNewIntent(intent1);
+        if ((Intent.FLAG_ACTIVITY_CLEAR_TOP & intent1.getFlags()) != 0) {
+            finish();
+        }
     }
 }
