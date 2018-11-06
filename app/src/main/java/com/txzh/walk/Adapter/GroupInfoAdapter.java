@@ -57,7 +57,7 @@ public class GroupInfoAdapter extends BaseAdapter {
 
         viewHolder.group_name.setText(groupInfoBean.getGroupName());
 
-        Log.i("****",groupInfoBean.getGroupId()+"---"+groupInfoBean.groupHostID+groupInfoBean.getGroupName());
+        Log.i("****","群ID:"+groupInfoBean.getGroupId()+"---"+"群主id："+groupInfoBean.groupHostID+"---"+"群昵称："+groupInfoBean.getGroupName());
 
         return convertView;
     }

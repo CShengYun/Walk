@@ -1,7 +1,10 @@
 package com.txzh.walk.Adapter;
 
+
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import java.util.List;
@@ -21,6 +24,7 @@ public class FragmentAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int arg0) {
 
         return fragmentList.get(arg0);
+    //    return fragmentList.get(arg0);
     }
 
     @Override
@@ -32,10 +36,10 @@ public class FragmentAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getItemPosition(Object object) {
-    //    if (mChildCount > 0) {
-    //        mChildCount--;
-    //        return POSITION_NONE;
-    //    }
+        if (mChildCount > 0) {
+            mChildCount--;
+            return POSITION_NONE;
+        }
         return super.getItemPosition(object);
     }
     @Override

@@ -2,6 +2,7 @@ package com.txzh.walk.Fragment;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,7 +19,7 @@ import android.widget.Toast;
 import com.txzh.walk.Adapter.GroupInfoAdapter;
 import com.txzh.walk.Bean.GroupMemberInfoBean;
 import com.txzh.walk.Group.CreateGroup;
-import com.txzh.walk.Group.GroupMember;
+import com.txzh.walk.Group.GroupMembers;
 import com.txzh.walk.R;
 
 import org.json.JSONArray;
@@ -57,7 +58,8 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
     public GroupInfoAdapter manageGroupAdapter;                                  //群组适配器
     private Handler handler;
     private String isObtainGroupMember="";                                      //判断是否获取所有群成员
-    private Response group_member_response;                                                    //获取群成员应答
+    private Intent intent;                                                      //开启群成员acticity
+    private Bundle bundle = new Bundle();                                                      //传送数据
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -175,9 +177,9 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
         group_lv_manage_group.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, final long id) {
-                TextView groupName = (TextView)view.findViewById(R.id.group_name_item);
-                GroupMember groupMember = new GroupMember(manageGroupInfoBeanList.get(position).getGroupName(),manageGroupInfoBeanList.get(position).getGroupId());
-
+                bundle.clear();
+                bundle.putString("groupName",manageGroupInfoBeanList.get(position).getGroupName());
+                bundle.putString("groupID",manageGroupInfoBeanList.get(position).getGroupId());
                 OkHttpClient client = new OkHttpClient();
 
                 FormBody formBody = new FormBody.Builder()
@@ -206,6 +208,9 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
         group_lv_add_group.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                bundle.clear();
+                bundle.putString("groupName",manageGroupInfoBeanList.get(position).getGroupName());
+                bundle.putString("groupID",manageGroupInfoBeanList.get(position).getGroupId());
                 OkHttpClient client = new OkHttpClient();
 
                 FormBody formBody = new FormBody.Builder()
@@ -267,9 +272,10 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
                     }
 
                     if(isObtainGroupMember.equals("true")){
-                        Intent intent = new Intent(context,GroupMember.class);
+                        intent = new Intent(context,GroupMembers.class);
+                        intent.putExtra("groupNameID",bundle);
                         startActivity(intent);
-                    }else if(!isObtainAllGroup) {
+                    }else if(isObtainGroupMember.equals("false")) {
                         Toast.makeText(context,"服务器繁忙，请重新点击加载！",Toast.LENGTH_SHORT).show();
                     }else {
                         Toast.makeText(context,"当前网络状况不佳，请重新点击加载！",Toast.LENGTH_SHORT).show();

@@ -31,12 +31,12 @@
             android:textStyle="bold"/>
 
         <TextView
-            android:id="@+id/group_tv_establish_group"
+            android:id="@+id/group_tv_create_group"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:layout_margin="8dp"
-            android:background="@drawable/group_establish_group_24dp"/>
+            android:background="@drawable/group_create_group_24dp"/>
 
     </LinearLayout>
 
@@ -62,8 +62,8 @@
         <ListView
             android:id="@+id/group_lv_manage_group"
             android:layout_width="match_parent"
-            android:background="@color/colorGray"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="30dp"
             android:visibility="gone">
 
 
@@ -83,8 +83,8 @@
         <ListView
             android:id="@+id/group_lv_add_group"
             android:layout_width="match_parent"
-            android:background="@color/colorGray"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="30dp"
             android:visibility="gone">
 
 
