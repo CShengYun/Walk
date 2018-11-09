@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.txzh.walk.Bean.GroupMemberInfoBean;
 import com.txzh.walk.R;
+import com.txzh.walk.customComponents.CircleImageView;
 
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class GroupMemberInfoAdapter extends BaseAdapter {
 
             viewHolder = new ViewHolder();
             viewHolder.name = (TextView)convertView.findViewById(R.id.group_member_name_item);
-            viewHolder.headPath = (TextView)convertView.findViewById(R.id.group_member_pic_item);
+            viewHolder.headPath = (CircleImageView) convertView.findViewById(R.id.group_member_pic_item);
             convertView.setTag(viewHolder);
         }else {
             viewHolder = (ViewHolder)convertView.getTag();
@@ -59,6 +60,6 @@ public class GroupMemberInfoAdapter extends BaseAdapter {
 
     class ViewHolder{
         TextView name;
-        TextView headPath;
+        CircleImageView headPath;
     }
 }

@@ -10,4 +10,5 @@ public class NetWorkIP {
     public static String URL_obtainAllGroupId = URL+"/obtainAllGroupId";
     public static String URL_obtainGroupMember = URL+"/obtainGroupMember";
     public static String URL_obtainGroupPositionInfo = URL+"/obtainGroupPositionInfo";
+    public static String URL_modifyUserData = URL+"/modifyUserData";
 }

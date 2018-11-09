@@ -1,14 +1,11 @@
 package com.txzh.walk.Fragment;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
@@ -17,9 +14,6 @@ import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
-import com.baidu.mapapi.map.InfoWindow;
-import com.baidu.mapapi.map.MapStatusUpdate;
-import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
@@ -28,39 +22,49 @@ import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
 import com.txzh.walk.Bean.GroupMemberLocationBean;
 import com.txzh.walk.Listener.LocationListener.MyLocationListener;
-import com.txzh.walk.Listener.SensorListener.MyOrientationListener;
+import com.txzh.walk.Listener.MarkerListener.MyMarkerListener;
 import com.txzh.walk.R;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.txzh.walk.Group.GroupMembers.isLocation;
+
 
 public class MapFragment extends Fragment{
     @SuppressWarnings("unused")
-    public MapView mMapView;
+    public static MapView mMapView;
     View view;
-    LatLng latLng;      //获取经纬度
+    public static LatLng latLng;      //获取经纬度
 
-    public static MyOrientationListener myOrientationListener;
     public static BaiduMap mBaiduMap;//定义地图实例
     public static boolean ifFrist = true;//判断是否是第一次进去
 
 
-    public LocationClient mLocationClient = null;//定义LocationClient
+    public static LocationClient mLocationClient = null;//定义LocationClient
     public MyLocationListener myListener = new MyLocationListener();//继承BDAbstractLocationListener的class
 
+    public static MyMarkerListener markerListener = new MyMarkerListener();;
 
+    public static List<GroupMemberLocationBean> groupMemberLocationBeanList = new ArrayList<GroupMemberLocationBean>();
 
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//
-//        System.out.println("我滑动了第yi个界面11");
-//    }
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(isLocation){
+            mBaiduMap.clear();
+            mBaiduMap.removeMarkerClickListener(markerListener);
+            addInfosOverlay(groupMemberLocationBeanList);
+            mBaiduMap.setOnMarkerClickListener(markerListener);
+        }
+    }
+
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         SDKInitializer.initialize(getActivity().getApplicationContext());
         SDKInitializer.setCoordType(CoordType.BD09LL);
 
         //声明OrientationListener类
-    //    myOrientationListener = new MyOrientationListener(getActivity().getApplicationContext());
+        //    myOrientationListener = new MyOrientationListener(getActivity().getApplicationContext());
         //声明LocationClient类
         mLocationClient = new LocationClient(getActivity().getApplicationContext());
         //注册监听函数
@@ -92,10 +96,10 @@ public class MapFragment extends Fragment{
 
         option.setIsNeedAddress(true);//可选，设置是否需要地址信息，默认不需要
         option.setOpenGps(true);//可选，默认false,设置是否使用gps
-    //    option.setLocationNotify(true);//可选，默认false，设置是否当gps有效时按照1S1次频率输出GPS结果
+        //    option.setLocationNotify(true);//可选，默认false，设置是否当gps有效时按照1S1次频率输出GPS结果
         option.setIsNeedLocationDescribe(true);//可选，默认false，设置是否需要位置语义化结果，可以在BDLocation.getLocationDescribe里得到，结果类似于“在北京天安门附近”
-    //    option.setIsNeedLocationPoiList(true);//可选，默认false，设置是否需要POI结果，可以在BDLocation.getPoiList里得到
-    //    option.setIgnoreKillProcess(false);//可选，默认true，定位SDK内部是一个SERVICE，并放到了独立进程，设置是否在stop的时候杀死这个进程，默认不杀死
+        //    option.setIsNeedLocationPoiList(true);//可选，默认false，设置是否需要POI结果，可以在BDLocation.getPoiList里得到
+        //    option.setIgnoreKillProcess(false);//可选，默认true，定位SDK内部是一个SERVICE，并放到了独立进程，设置是否在stop的时候杀死这个进程，默认不杀死
         option.SetIgnoreCacheException(false);//可选，默认false，设置是否收集CRASH信息，默认收集
         option.setEnableSimulateGps(false);//可选，默认false，设置是否需要过滤gps仿真结果，默认需要
         option.setNeedDeviceDirect(true); //返回的定位结果包含手机机头方向
@@ -108,12 +112,10 @@ public class MapFragment extends Fragment{
     public void onDestroy() {
         super.onDestroy();
         //在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
-        mMapView.onDestroy();
-        mLocationClient.stop();
-        mBaiduMap.setMyLocationEnabled(false);
-        // 关闭方向传感器
-//        myOrientationListener.stop();
-//        super.onStop();
+
+        Log.i("##","我销毁了监听。");
+        mBaiduMap.removeMarkerClickListener(markerListener);
+
     }
 
 
@@ -124,27 +126,11 @@ public class MapFragment extends Fragment{
         mMapView.onResume();
         //调用LocationClient的start()方法，便可发起定位请求
         mLocationClient.start();
+
+    //    addListenerMaker();
         // 开启方向传感器
-//        myOrientationListener.start();
-//        super.onStart();
 
     }
-
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {        //核心方法，避免因Fragment跳转导致地图崩溃
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser == true) {
-            // if this view is visible to user, start to request user location
-     //       mLocationClient.start();
-        } else if (isVisibleToUser == false) {
-            // if this view is not visible to user, stop to request user
-            // location
-       //     mLocationClient.stop();
-        }
-    }
-
-
 
 
 
@@ -158,21 +144,21 @@ public class MapFragment extends Fragment{
             // 位置
             latLng = new LatLng(Double.parseDouble(groupMemberLocationBean.getLatitude()), Double.parseDouble(groupMemberLocationBean.getLongitude()));
             // 图标
-            BitmapDescriptor bitmap = BitmapDescriptorFactory.fromResource(Integer.parseInt(groupMemberLocationBean.getHeadPath()));//此处设置自己的图标即可
+            BitmapDescriptor bitmap = BitmapDescriptorFactory.fromResource(R.drawable.p2);//此处设置自己的图标即可
             overlayOptions = new MarkerOptions().position(latLng).icon(bitmap).zIndex(5);
             marker = (Marker) (mBaiduMap.addOverlay(overlayOptions));
-
+            marker.setVisible(true);
             Bundle bundle = new Bundle();
             bundle.putSerializable("groupMemberLocationBean", groupMemberLocationBean);
             marker.setExtraInfo(bundle);
         }
 
         // 将地图移到到最后一个经纬度位置
-        MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(latLng);
-        mBaiduMap.setMapStatus(u);
+    //    MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(latLng);
+    //    mBaiduMap.setMapStatus(u);
     }
 
-
+/*
     //显示人物图标监听
     public void addListenerMaker() {
 
@@ -194,7 +180,7 @@ public class MapFragment extends Fragment{
                 textPhone.setSpan(new ForegroundColorSpan(Color.BLUE), 0, textPhone.length(), 0);
                 marker_phone.setText(textPhone);
 
-                SpannableString textAddress = new SpannableString(groupMemberLocationBean.userID);
+                SpannableString textAddress = new SpannableString(groupMemberLocationBean.headPath);
                 textAddress.setSpan(new ForegroundColorSpan(Color.BLUE), 0, textAddress.length(), 0);
                 marker_address.setText(textAddress);
 
@@ -208,17 +194,18 @@ public class MapFragment extends Fragment{
 
                 mBaiduMap.showInfoWindow(infoWindow);
 
-
-
-    /*                    Intent intent = new Intent(Intent.ACTION_DIAL);
-                        Uri data = Uri.parse("tel:" + info.getPhone());
-                        intent.setData(data);
-                        startActivity(intent);*/
-
-
                 return true;
             }
         });
 
-    }
+
+
+
+
+
+
+
+
+
+    }*/
 }

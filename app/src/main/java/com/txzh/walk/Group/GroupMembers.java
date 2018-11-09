@@ -1,9 +1,9 @@
 package com.txzh.walk.Group;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
@@ -13,7 +13,6 @@ import android.widget.Toast;
 import com.txzh.walk.Adapter.GroupMemberInfoAdapter;
 import com.txzh.walk.Bean.GroupMemberLocationBean;
 import com.txzh.walk.HomePage.WalkHome;
-import com.txzh.walk.MainActivity;
 import com.txzh.walk.R;
 
 import org.json.JSONArray;
@@ -21,8 +20,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -32,8 +29,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import static com.txzh.walk.Fragment.GroupFragment.groupMemberInfoBeanList;
+import static com.txzh.walk.Fragment.MapFragment.groupMemberLocationBeanList;
 import static com.txzh.walk.HomePage.WalkHome.context;
-import static com.txzh.walk.HomePage.WalkHome.isObtainAllGroup;
 import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainGroupPositionInfo;
 
 public class GroupMembers extends AppCompatActivity implements View.OnClickListener {
@@ -47,7 +44,8 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
     private String isObationGroupMemberLocation;
 
     private Handler handler;
-    public static List<GroupMemberLocationBean> groupMemberLocationBeanList = new ArrayList<GroupMemberLocationBean>();
+
+    public static boolean isLocation = false;
 
     public GroupMembers(){
 
@@ -136,9 +134,7 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
                 groupMemberLocationBeanList.clear();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
+
                         try {
                             JSONObject jsonObject = new JSONObject(response.body().string());
                             JSONArray jsonArray = jsonObject.getJSONArray("data");
@@ -166,7 +162,10 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
                             }
 
                             if(isObationGroupMemberLocation.equals("true")){
+                                isLocation=true;
                                 Intent intent = new Intent(GroupMembers.this, WalkHome.class);
+
+                                finish();
                                 startActivity(intent);
                             }else if(isObationGroupMemberLocation.equals("false")) {
                                 Toast.makeText(context,"服务器繁忙，请重新点击加载！",Toast.LENGTH_SHORT).show();
@@ -178,8 +177,7 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                    }
-                });
+
             }
         });
     }

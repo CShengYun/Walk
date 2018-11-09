@@ -8,12 +8,9 @@ import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
-import com.txzh.walk.Listener.SensorListener.MyOrientationListener;
 
 import static com.txzh.walk.Fragment.MapFragment.ifFrist;
 import static com.txzh.walk.Fragment.MapFragment.mBaiduMap;
-import static com.txzh.walk.HomePage.WalkHome.context;
-import static com.txzh.walk.Fragment.MapFragment.myOrientationListener;
 
 
 public class MyLocationListener extends BDAbstractLocationListener {
@@ -74,14 +71,6 @@ public class MyLocationListener extends BDAbstractLocationListener {
         //获取经纬度坐标类型，以LocationClientOption中设置过的坐标类型为准
         // 获取定位类型、定位错误返回码，具体信息可参照类参考中BDLocation类中的说明
 
-        myOrientationListener = new MyOrientationListener(context);
-        myOrientationListener.setOnOrientationListener(new MyOrientationListener.OnOrientationListener() {
-            @Override
-            public void onOrientationChanged(float x) {
-                mCurrentAccracy=(int)x;
-
-            }
-        });
         // 构造定位数据
         MyLocationData locData = new MyLocationData.Builder()
                 .accuracy(location.getRadius())

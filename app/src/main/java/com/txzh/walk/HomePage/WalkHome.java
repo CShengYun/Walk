@@ -2,23 +2,19 @@ package com.txzh.walk.HomePage;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
-import android.os.Environment;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.txzh.walk.Adapter.FragmentAdapter;
 import com.txzh.walk.Bean.GroupInfoBean;
@@ -27,16 +23,12 @@ import com.txzh.walk.Fragment.GroupFragment;
 import com.txzh.walk.Fragment.MapFragment;
 import com.txzh.walk.Fragment.NewsFragment;
 import com.txzh.walk.Fragment.PersonalFragment;
-import com.txzh.walk.Group.CreateGroup;
-import com.txzh.walk.MainActivity;
 import com.txzh.walk.MyViewPager.MyViewPager;
 import com.txzh.walk.R;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,13 +36,15 @@ import java.util.List;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static com.txzh.walk.Fragment.MapFragment.mBaiduMap;
+import static com.txzh.walk.Fragment.MapFragment.mLocationClient;
+import static com.txzh.walk.Fragment.MapFragment.mMapView;
+import static com.txzh.walk.Fragment.MapFragment.markerListener;
 import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainAllGroupId;
 
 public class WalkHome extends AppCompatActivity implements View.OnClickListener {
@@ -176,9 +170,7 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
 
                 manageGroupInfoBeanList.clear();
                 addGroupInfoBeanList.clear();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
+
                         try {
                             JSONObject jsonObject = new JSONObject(response.body().string());
                             JSONArray jsonArray = jsonObject.getJSONArray("data");
@@ -209,8 +201,6 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    }
-                });
 
             }
         });
@@ -231,6 +221,7 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
         System.out.print("注册");
 
         super.onResume();
+
     }
 
     //销毁NetworkChanagerReceiver广播
@@ -239,6 +230,26 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
         System.out.print("销毁");
         super.onPause();
     }
+
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
+
+        Log.i("##","我销毁了监听。");
+        mBaiduMap.removeMarkerClickListener(markerListener);
+        mBaiduMap.clear();
+        mMapView.onDestroy();
+        mLocationClient.stop();
+        mBaiduMap.setMyLocationEnabled(false);
+        // 关闭方向传感器
+//        myOrientationListener.stop();
+//        super.onStop();
+    }
+
+
 
 
 

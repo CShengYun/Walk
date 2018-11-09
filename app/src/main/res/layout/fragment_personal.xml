@@ -59,12 +59,17 @@
                 android:gravity="center">
 
                 <com.txzh.walk.customComponents.CircleImageView
-                    android:id="@+id/iv_custom"
+                    android:id="@+id/iv_customs"
                     android:layout_height="100dp"
-                    android:layout_width="100dp"
-                    android:src="@drawable/headportrait">
+                    android:layout_width="100dp">
 
                 </com.txzh.walk.customComponents.CircleImageView>
+
+                <com.loopj.android.image.SmartImageView
+                    android:id="@+id/siv_head"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp" />
+
 
             </LinearLayout>
 

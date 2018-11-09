@@ -39,7 +39,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -75,7 +76,14 @@
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="vOIqtX93eToTf2rAPd5u2IXNwUDSFqAT" />
 
-        <activity android:name=".Group.GroupMembers"></activity>
+        <activity android:name=".Group.GroupMembers"/>
+
+
+        <activity android:name=".Function.personalData"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false"
+            android:grantUriPermissions="true"/>
+
     </application>
 
 </manifest>

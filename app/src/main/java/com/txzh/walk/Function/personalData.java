@@ -1,5 +1,6 @@
 package com.txzh.walk.Function;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,11 +10,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,14 +24,32 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.R;
+import com.txzh.walk.ToolClass.Tools;
 import com.txzh.walk.customComponents.CircleImageView;
 import com.txzh.walk.customComponents.MyDialog;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class personalData extends AppCompatActivity implements View.OnClickListener{
     private ImageButton ib_return;             //返回按钮
@@ -48,8 +69,13 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
     //头像名称
     private static final String PHOTO_FILE_NAME = "iv_custom.jpg";
     private File temmpFile;                     //头像文件
-
     Bitmap bitmaps = null;       //保存头像
+    private boolean isFlag = false;
+    private Handler handler;
+    private String phone;   //修改后的电话号码
+    private String  nickName; //修改后的昵称
+    private String sex;    //修改后的性别
+    private int id;         //id
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +85,6 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
         init();
 
         checkCarema();
-
-        //从SharedPreferences获取图片
-        getBitmapFromSharedPreferences();
     }
 
     //动态注册使用相机权限
@@ -73,6 +96,7 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
     }
 
     private void init(){
+        handler = new Handler();
         ib_return = findViewById(R.id.ib_Return);
         ib_return.setOnClickListener(this);
         iv_custom = findViewById(R.id.iv_custom);
@@ -82,6 +106,13 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
         tv_Sex = findViewById(R.id.tv_Sex);
         btn_Edit = findViewById(R.id.btn_Edit);
         btn_Edit.setOnClickListener(this);
+
+        et_account.setText(Tools.getAccounts());
+        et_Nickname.setText(Tools.getNickName());
+        et_phone.setText(Tools.getPhongNumber());
+        tv_Sex.setText(Tools.getSex());
+        iv_custom.setImageUrl(Tools.getHeadPhoto(),R.drawable.headportrait,null);
+        //getBitmapFromSharedPreferences();
         nonEditable();
     }
 
@@ -93,6 +124,8 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
                     finish();  //返回上一个Activity
                 }else {
                     getBitmapFromSharedPreferences();
+                    //iv_custom.setImageUrl(Tools.getHeadPhoto(),R.drawable.headportrait,null);
+                    isFlag = false;
                     ibReturn();
                 }
                 break;
@@ -152,12 +185,16 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
             flag = false;
         }else {
             nonEditable();
-            btn_Edit.setText("编辑资料");
             //保存到SharedPreferences
             if(bitmaps!= null){
                 saveBitmapToSharedPreferences(bitmaps);
+            }else {
+                getBitmapFromSharedPreferences();
             }
             flag = true;
+
+            getChangePersonalMessage();
+            btn_Edit.setText("编辑资料");
         }
     }
 
@@ -185,9 +222,12 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
                 //判断存储卡是否可用，可用进行存储
                 if(hasSdcard()){
                     temmpFile = new File(Environment.getExternalStorageDirectory(),PHOTO_FILE_NAME);
-                    //从文件中创建uri
                     Uri uri = Uri.fromFile(temmpFile);
+
+                    //从文件中创建uri
                     intent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
+
+
                 }
                 //开启一个带有返回值的Activity，请求吗PHOTO_REQUEST_CAREMA
                 startActivityForResult(intent,PHOTO_REQUEST_CAREMA);
@@ -226,7 +266,7 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
         intent.putExtra("outputX",90);
         intent.putExtra("outputY",90);
         //图片格式
-        intent.putExtra("outputFormat","JPEG");
+        intent.putExtra("outputFormat","PNG");
         //取消人脸识别
         intent.putExtra("onFaceDetection",true);
 
@@ -264,7 +304,9 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
             }
             //获得图片
             iv_custom.setImageBitmap(bitmap);
-            bitmaps = bitmap;
+            isFlag = true;
+            bitmaps=bitmap;
+
 
             try {
                 //将临时文件删除
@@ -281,7 +323,7 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
     private void saveBitmapToSharedPreferences(Bitmap bitmap){
         //第一步：将Bitmap压缩至字节数组输出流ByteArrayOutputStream
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG,80,byteArrayOutputStream);
+        bitmap.compress(Bitmap.CompressFormat.PNG,80,byteArrayOutputStream);
         //第二步：利用Base64将字节数组输出流中的数据转换成字符串String
         byte[] byteArray = byteArrayOutputStream.toByteArray();
         String imageString = new String(Base64.encodeToString(byteArray,Base64.DEFAULT));
@@ -303,11 +345,19 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
         byte[] byteArray = Base64.decode(imageString,Base64.DEFAULT);
         if(byteArray.length == 0){
             iv_custom.setImageResource(R.drawable.headportrait);
+            isFlag = false;
+            @SuppressLint("ResourceType")
+            InputStream is = getResources().openRawResource(R.drawable.headportrait);
+            Bitmap mBitmap = BitmapFactory.decodeStream(is);
+            bitmaps = mBitmap;
+
         }else {
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
             //第三步：利用ByteArrayInputStream生成Bitmap
             Bitmap bitmap = BitmapFactory.decodeStream(byteArrayInputStream);
             iv_custom.setImageBitmap(bitmap);
+            bitmaps = bitmap;
+            isFlag =true;
         }
 
 
@@ -335,5 +385,161 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
                 })
                 .show();
     }
+
+    //获取修改后的个人信息
+    private void getChangePersonalMessage(){
+        phone = et_phone.getText().toString().trim();
+        nickName = et_Nickname.getText().toString().trim();
+        sex = tv_Sex.getText().toString().trim();
+        id = Tools.getUserID();
+
+        if(!Tools.getPhongNumber().equals(phone)){
+            checkPhoneNumberIfTure(phone);
+        }else {
+            uploadPersonalMessage(id,nickName,phone,sex,getFile(bitmaps));
+        }
+    }
+
+    //检查修改后的电话号码是否被修改过
+    public void checkPhoneNumberIfTure(final String phone){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String URl = NetWorkIP.URL_checkPhone;
+                OkHttpClient client = new OkHttpClient();
+                RequestBody fromBody = new FormBody.Builder()
+                        .add("phone",phone)
+                        .build();
+                Request request = new Request.Builder()
+                        .url(URl)
+                        .post(fromBody)
+                        .build();
+
+                Response response;
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if(!response.isSuccessful()){
+                            Toast.makeText(personalData.this, "无响应", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        JSONObject object = null;
+                        String success = null;
+                        String message = null;
+                        try {
+                            object = new JSONObject(response.body().string());
+                            success = object.getString("success");
+                            message = object.getString("message");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        final String finalSuccess = success;
+                        final String finalMessage = message;
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if("true".equals(finalSuccess)){
+                                    uploadPersonalMessage(id,nickName,phone,sex,getFile(bitmaps));
+                                }else {
+                                    Toast.makeText(personalData.this, ""+ finalMessage, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+
+                    }
+                });
+            }
+        }).start();
+    }
+
+    //上传修改后的资料
+    private void uploadPersonalMessage(final int id,final String nickName,final String phone,final String sex,final File headPic){
+        Log.i("aaaaaaaaaaa",""+sex+headPic);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpClient client = new OkHttpClient();
+                //设置文件类型
+                MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+                RequestBody fileBody = RequestBody.create(MEDIA_TYPE_PNG,headPic);
+                RequestBody requestBody = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("userID",""+id)
+                        .addFormDataPart("nickName",nickName)
+                        .addFormDataPart("phone",phone)
+                        .addFormDataPart("sex",sex)
+                        .addFormDataPart("image","head_image",fileBody)
+                        .build();
+
+                Request request = new Request.Builder()
+                        .url(NetWorkIP.URL_modifyUserData)
+                        .post(requestBody)
+                        .build();
+
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        if(!response.isSuccessful()){
+                            return;
+                        }
+
+                        JSONObject object = null;
+                        String success = null;
+                        String message = null;
+                        try {
+                            object = new JSONObject(response.body().string());
+                            success = object.getString("success");
+                            message = object.getString("message");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        final String finalSuccess = success;
+                        final String finalMessage = message;
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                if("true".equals(finalSuccess)){
+                                    Toast.makeText(personalData.this, ""+finalMessage, Toast.LENGTH_SHORT).show();
+                                }else {
+                                    Toast.makeText(personalData.this, ""+ finalMessage, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        }).start();
+    }
+
+    public File getFile(Bitmap bitmap){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        File file = new File(Environment.getExternalStorageDirectory() + "/temp.png");
+        try{
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(baos.toByteArray());
+            fos.flush();
+            fos.close();
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return file;
+    }
+
+    //压缩图片文件
 
 }

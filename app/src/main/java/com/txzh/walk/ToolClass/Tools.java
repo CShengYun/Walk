@@ -5,6 +5,24 @@ public class Tools {
     public static String phongNumber;            //电话号码
     public static String nickName;               //昵称
     public static String sex;                    //性别
+    public static String headPhoto;              //头像
+    public static int userID;                      //用户id
+    public static int getUserID() {
+        return userID;
+    }
+
+    public static void setUserID(int userID) {
+        Tools.userID = userID;
+    }
+
+
+    public static String getHeadPhoto() {
+        return headPhoto;
+    }
+
+    public static void setHeadPhoto(String headPhoto) {
+        Tools.headPhoto = headPhoto;
+    }
 
     public static String getNickName() {
         return nickName;
