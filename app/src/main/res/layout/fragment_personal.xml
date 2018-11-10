@@ -65,11 +65,6 @@
 
                 </com.txzh.walk.customComponents.CircleImageView>
 
-                <com.loopj.android.image.SmartImageView
-                    android:id="@+id/siv_head"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp" />
-
 
             </LinearLayout>
 

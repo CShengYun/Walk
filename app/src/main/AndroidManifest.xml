@@ -39,7 +39,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -76,13 +77,25 @@
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="vOIqtX93eToTf2rAPd5u2IXNwUDSFqAT" />
 
-        <activity android:name=".Group.GroupMembers"/>
+        <activity android:name=".Group.GroupMembers" />
 
 
-        <activity android:name=".Function.personalData"
-            android:theme="@style/AppTheme.NoActionBar"
+        <activity
+            android:name=".Function.personalData"
             android:exported="false"
-            android:grantUriPermissions="true"/>
+            android:grantUriPermissions="true"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.txzh.Function.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
 
     </application>
 

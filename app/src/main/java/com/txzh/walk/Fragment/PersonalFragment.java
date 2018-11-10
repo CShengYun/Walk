@@ -2,6 +2,7 @@ package com.txzh.walk.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import com.txzh.walk.Function.personalData;
 import com.txzh.walk.MainActivity;
 import com.txzh.walk.R;
+import com.txzh.walk.ToolClass.DeleteCaChe;
 import com.txzh.walk.ToolClass.Tools;
 import com.txzh.walk.customComponents.BottomAnimDialog;
 import com.txzh.walk.customComponents.CircleImageView;
@@ -23,6 +25,8 @@ public class PersonalFragment extends Fragment implements View.OnClickListener {
     private TextView tv_accounts;       //帐号
     private TextView tv_nickName;       //昵称
     private CircleImageView iv_customs;  //头像
+    private DeleteCaChe deleteCaChe;
+    private Handler handler;
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
@@ -39,6 +43,7 @@ public class PersonalFragment extends Fragment implements View.OnClickListener {
     }
 
     private void init(){
+        deleteCaChe = new DeleteCaChe(getActivity(),handler);
         tv_personalData = view.findViewById(R.id.tv_personalData);
         tv_personalData.setOnClickListener(this);
         tv_quit = view.findViewById(R.id.tv_quit);
@@ -46,6 +51,7 @@ public class PersonalFragment extends Fragment implements View.OnClickListener {
         tv_nickName = view.findViewById(R.id.tv_nickName);
         tv_accounts = view.findViewById(R.id.tv_accounts);
         iv_customs = view.findViewById(R.id.iv_customs);
+        deleteCaChe.remove(Tools.getHeadPhoto());
         iv_customs.setImageUrl(Tools.getHeadPhoto(),R.drawable.headportrait);
         iv_customs.setOnClickListener(new CircleImageView.OnClickListener() {
             @Override
@@ -61,6 +67,7 @@ public class PersonalFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
+
         switch (view.getId()){
             case R.id.tv_personalData:
                 Intent intent = new Intent(getActivity(),personalData.class);
@@ -91,5 +98,7 @@ public class PersonalFragment extends Fragment implements View.OnClickListener {
                 break;
         }
     }
+
+    //activity 重新显示时调用
 
 }
