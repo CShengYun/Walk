@@ -2,8 +2,10 @@ package com.txzh.walk.Fragment;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -207,8 +209,8 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 bundle.clear();
-                bundle.putString("groupName",manageGroupInfoBeanList.get(position).getGroupName());
-                bundle.putString("groupID",manageGroupInfoBeanList.get(position).getGroupId());
+                bundle.putString("groupName",addGroupInfoBeanList.get(position).getGroupName());
+                bundle.putString("groupID",addGroupInfoBeanList.get(position).getGroupId());
                 OkHttpClient client = new OkHttpClient();
 
                 FormBody formBody = new FormBody.Builder()
@@ -242,48 +244,48 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
         }
         groupMemberInfoBeanList.clear();
 
-                try {
-                    JSONObject jsonObject = new JSONObject(response.body().string());
-                    JSONArray jsonArray = jsonObject.getJSONArray("data");
-                    isObtainGroupMember = jsonObject.getString("success");
-                    for(int i=0;i<jsonArray.length();i++){
-                        JSONObject object = (JSONObject) jsonArray.get(i);
-                        GroupMemberInfoBean groupMemberInfoBean = new GroupMemberInfoBean();
+        try {
+            JSONObject jsonObject = new JSONObject(response.body().string());
+            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            isObtainGroupMember = jsonObject.getString("success");
+            for(int i=0;i<jsonArray.length();i++){
+                JSONObject object = (JSONObject) jsonArray.get(i);
+                GroupMemberInfoBean groupMemberInfoBean = new GroupMemberInfoBean();
 
-                        String userID = object.getString("userID");
-                        //                    String headPath = object.getString("headPath");
-                        String nickName = object.getString("nickName");
-                        String sex = object.getString("sex");
-                        //                    String status = object.getString("status");
+                String userID = object.getString("userID");
+                //                    String headPath = object.getString("headPath");
+                String nickName = object.getString("nickName");
+                String sex = object.getString("sex");
+                //                    String status = object.getString("status");
 
-                        groupMemberInfoBean.setGroupMemberID(object.getString("userID"));
-                        //                    groupMemberInfoBean.setGroupMemberHeadPath(object.getString("headPath"));
-                        groupMemberInfoBean.setGroupMemberNiceName(object.getString("nickName"));
-                        groupMemberInfoBean.setGroupMemberSex(object.getString("sex"));
-                        //                    groupMemberInfoBean.setGroupMemberStatue(object.getString("status"));
+                groupMemberInfoBean.setGroupMemberID(object.getString("userID"));
+                //                    groupMemberInfoBean.setGroupMemberHeadPath(object.getString("headPath"));
+                groupMemberInfoBean.setGroupMemberNiceName(object.getString("nickName"));
+                groupMemberInfoBean.setGroupMemberSex(object.getString("sex"));
+                //                    groupMemberInfoBean.setGroupMemberStatue(object.getString("status"));
 
-                        groupMemberInfoBeanList.add(groupMemberInfoBean);
+                groupMemberInfoBeanList.add(groupMemberInfoBean);
 
-                        Log.i("******","我是管理群的群成员："+userID+"----"+nickName+"----"+sex+"----"+isObtainGroupMember);
-                    }
+                Log.i("******","我是管理群的群成员："+userID+"----"+nickName+"----"+sex+"----"+isObtainGroupMember);
+            }
 
-                    if(isObtainGroupMember.equals("true")){
-                        intent = new Intent(context,GroupMembers.class);
-                        intent.putExtra("groupNameID",bundle);
-                        startActivity(intent);
-                    }else if(isObtainGroupMember.equals("false")) {
-                        Toast.makeText(context,"服务器繁忙，请重新点击加载！",Toast.LENGTH_SHORT).show();
-                    }else {
-                        Toast.makeText(context,"当前网络状况不佳，请重新点击加载！",Toast.LENGTH_SHORT).show();
-                    }
+            if(isObtainGroupMember.equals("true")){
+                intent = new Intent(context,GroupMembers.class);
+                intent.putExtra("groupNameID",bundle);
+                startActivity(intent);
+            }else if(isObtainGroupMember.equals("false")) {
+                Toast.makeText(context,"服务器繁忙，请重新点击加载！",Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(context,"当前网络状况不佳，请重新点击加载！",Toast.LENGTH_SHORT).show();
+            }
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
 

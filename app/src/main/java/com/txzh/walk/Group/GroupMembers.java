@@ -1,9 +1,9 @@
 package com.txzh.walk.Group;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.txzh.walk.Adapter.GroupMemberInfoAdapter;
 import com.txzh.walk.Bean.GroupMemberLocationBean;
 import com.txzh.walk.HomePage.WalkHome;
+import com.txzh.walk.MainActivity;
 import com.txzh.walk.R;
 
 import org.json.JSONArray;
@@ -20,6 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -43,9 +46,9 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
     private String groupName,groupID;                                      //保存传过来的数据
     private String isObationGroupMemberLocation;
 
-    private Handler handler;
+    public static boolean isLocation=false;
 
-    public static boolean isLocation = false;
+
 
     public GroupMembers(){
 
@@ -65,7 +68,6 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
 
     //实例化对象、接收数据
     public void init(){
-        handler = new Handler();
 
         back_group_member = (TextView)findViewById(R.id.tv_back_group_member);
         group_name_group_member = (TextView)findViewById(R.id.tv_group_name_group_member);
@@ -135,48 +137,46 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
                 }
                 groupMemberLocationBeanList.clear();
 
-                        try {
-                            JSONObject jsonObject = new JSONObject(response.body().string());
-                            JSONArray jsonArray = jsonObject.getJSONArray("data");
-                            isObationGroupMemberLocation = jsonObject.getString("success");
+                try {
+                    JSONObject jsonObject = new JSONObject(response.body().string());
+                    JSONArray jsonArray = jsonObject.getJSONArray("data");
+                    isObationGroupMemberLocation = jsonObject.getString("success");
 
-                            for(int i=0;i<jsonArray.length();i++){
-                                GroupMemberLocationBean groupMemberLocationBean = new GroupMemberLocationBean();
-                                JSONObject object = (JSONObject)jsonArray.get(i);
-                                String nickName = object.getString("nickName");
-                                String phone = object.getString("phone");
-                                String latitude = object.getString("latitude");
-                                String longtitude = object.getString("longititude");
-                                String userID = object.getString("userID");
+                    for(int i=0;i<jsonArray.length();i++){
+                        GroupMemberLocationBean groupMemberLocationBean = new GroupMemberLocationBean();
+                        JSONObject object = (JSONObject)jsonArray.get(i);
+                        String nickName = object.getString("nickName");
+                        String phone = object.getString("phone");
+                        String latitude = object.getString("latitude");
+                        String longtitude = object.getString("longititude");
+                        String userID = object.getString("userID");
 
-                                groupMemberLocationBean.setNickName(object.getString("nickName"));
-                                groupMemberLocationBean.setPhone(object.getString("phone"));
-                                groupMemberLocationBean.setLatitude(object.getString("latitude"));
-                                groupMemberLocationBean.setLongitude(object.getString("longititude"));
-                                groupMemberLocationBean.setUserID(object.getString("userID"));
+                        groupMemberLocationBean.setNickName(object.getString("nickName"));
+                        groupMemberLocationBean.setPhone(object.getString("phone"));
+                        groupMemberLocationBean.setLatitude(object.getString("latitude"));
+                        groupMemberLocationBean.setLongitude(object.getString("longititude"));
+                        groupMemberLocationBean.setUserID(object.getString("userID"));
 
-                                groupMemberLocationBean.setHeadPath("R.drawable.p2");
+                        groupMemberLocationBean.setHeadPath("R.drawable.p2");
 
-                                groupMemberLocationBeanList.add(groupMemberLocationBean);
-                                Log.i("###","我是位置信息："+nickName+"-----"+phone+"-----"+latitude+"-----"+longtitude+"-----"+userID);
-                            }
+                        groupMemberLocationBeanList.add(groupMemberLocationBean);
+                        Log.i("###","我是位置信息："+nickName+"-----"+phone+"-----"+latitude+"-----"+longtitude+"-----"+userID);
+                    }
 
-                            if(isObationGroupMemberLocation.equals("true")){
-                                isLocation=true;
-                                Intent intent = new Intent(GroupMembers.this, WalkHome.class);
-
-                                finish();
-                                startActivity(intent);
-                            }else if(isObationGroupMemberLocation.equals("false")) {
-                                Toast.makeText(context,"服务器繁忙，请重新点击加载！",Toast.LENGTH_SHORT).show();
-                            }else {
-                                Toast.makeText(context,"当前网络状况不佳，请重新点击加载！",Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    if(isObationGroupMemberLocation.equals("true")){
+                        isLocation = true;
+                        Intent intent = new Intent(GroupMembers.this, WalkHome.class);
+                        startActivity(intent);
+                    }else if(isObationGroupMemberLocation.equals("false")) {
+                        Toast.makeText(context,"服务器繁忙，请重新点击加载！",Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(context,"当前网络状况不佳，请重新点击加载！",Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
             }
         });

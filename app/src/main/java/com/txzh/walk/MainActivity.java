@@ -18,8 +18,8 @@ import android.widget.Toast;
 
 import com.txzh.walk.HomePage.WalkHome;
 import com.txzh.walk.NetWork.NetWorkIP;
+import com.txzh.walk.Register.RegisteredUI;
 import com.txzh.walk.Register.RetrievePassword;
-import com.txzh.walk.ToolClass.Tools;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -134,9 +134,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //登录
     private void Login(final String accounts,final String password){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+
                 OkHttpClient client = new OkHttpClient();
                 RequestBody formBody = new FormBody.Builder()
                         .add("userName",accounts)
@@ -147,6 +145,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .post(formBody)
                         .build();
                 Response response;
+                final String[] success = {""};
+                final String[] message = {""};
                 client.newCall(request).enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -159,53 +159,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             return;
                         }
 
-                        JSONObject jsonObject = null;
-                        String success = null;
-                        String message =null;
-                        String [] data = null;
+                        //Toast.makeText(RetrievePassword.this, ""+b, Toast.LENGTH_SHORT).show();
                         try {
-                            jsonObject = new JSONObject(response.body().string());
-                            success = jsonObject.getString("success");
-                            message = jsonObject.getString("message");
-                            Tools.setAccounts(accounts);
-                            JSONArray jsonArray = jsonObject.getJSONArray("data");
-                            for(int i=0;i<jsonArray.length();i++){
-                                JSONObject object = (JSONObject)jsonArray.get(i);
-                                Tools.setNickName(object.getString("nickName"));
-                                Tools.setPhongNumber(object.getString("phone"));
-                                Tools.setSex(object.getString("sex"));
-                                Tools.setHeadPhoto(object.getString("headPath"));
-                                Tools.setUserID(object.getInt("userID"));
-                            }
+                            JSONObject jsonObject = new JSONObject(response.body().string());
+                            success[0] = jsonObject.getString("success");
+                            message[0] = jsonObject.getString("message");
+                            Log.i("bbbb","我是success："+ success[0]);
 
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-
-                        final String finalSuccess = success;
-                        final String finalMessage = message;
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //Toast.makeText(RetrievePassword.this, ""+b, Toast.LENGTH_SHORT).show();
-
-
-                                    Log.i("bbbb","我是success："+ finalSuccess);
-
-                                        if("true".equals(finalSuccess)){
-                                            Toast.makeText(MainActivity.this, ""+ finalSuccess, Toast.LENGTH_SHORT).show();
-                                            intent = new Intent(MainActivity.this, WalkHome.class);
-                                            startActivity(intent);
-                                        }else {
-                                            Toast.makeText(MainActivity.this, ""+ finalMessage, Toast.LENGTH_SHORT).show();
-                                        }
-                            }
-                        });
-
                     }
                 });
-            }
-        }).start();
+        if("true".equals(success[0])){
+            Toast.makeText(MainActivity.this, ""+ success[0], Toast.LENGTH_SHORT).show();
+            intent = new Intent(MainActivity.this, WalkHome.class);
+            startActivity(intent);
+        }else {
+            Toast.makeText(MainActivity.this, ""+ message[0], Toast.LENGTH_SHORT).show();
+        }
     }
 
 
@@ -220,14 +195,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(getApplicationContext(),"没有权限,请手动开启定位权限",Toast.LENGTH_SHORT).show();
             // 申请一个（或多个）权限，并提供用于回调返回的获取码（用户定义）
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.READ_PHONE_STATE}, BAIDU_READ_PHONE_STATE);
-        }
-    }
-
-    //退出程序
-    protected void onNewIntent(Intent intent1){
-        super.onNewIntent(intent1);
-        if ((Intent.FLAG_ACTIVITY_CLEAR_TOP & intent1.getFlags()) != 0) {
-            finish();
         }
     }
 
