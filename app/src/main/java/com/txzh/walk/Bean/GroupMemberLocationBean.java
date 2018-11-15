@@ -5,13 +5,6 @@ import java.io.Serializable;
 public class GroupMemberLocationBean implements Serializable {
 
 
-    /*static {
-        groupMemberLocationBeanList.add(new GroupMemberLocationBean("23.161903", "113.03913", "陈升云","17875598432", "R.drawable.p2"));
-        groupMemberLocationBeanList.add(new GroupMemberLocationBean("23.161903","113.03813",	"王伟峰", "1343316780", "R.drawable.p2"));
-        groupMemberLocationBeanList.add(new GroupMemberLocationBean("23.161903"," 113.03713",	"李海洋", "15236372531", "R.drawable.p2"));
-        groupMemberLocationBeanList.add(new GroupMemberLocationBean("23.161903","113.03613",	"吴帅辰", "69806", "R.drawable.p2"));
-    }*/
-
     public GroupMemberLocationBean(){
 
     }

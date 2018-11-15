@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.txzh.walk.Bean.GroupInfoBean;
 import com.txzh.walk.R;
+import com.txzh.walk.ToolClass.Tools;
 
 import java.util.List;
 
@@ -57,7 +58,7 @@ public class GroupInfoAdapter extends BaseAdapter {
 
         viewHolder.group_name.setText(groupInfoBean.getGroupName());
 
-        Log.i("****","群ID:"+groupInfoBean.getGroupId()+"---"+"群主id："+groupInfoBean.groupHostID+"---"+"群昵称："+groupInfoBean.getGroupName());
+        Log.i("****","用户id:"+ Tools.getUserID()+"---"+"群主id："+groupInfoBean.groupHostID+"---"+"群昵称："+groupInfoBean.getGroupName());
 
         return convertView;
     }

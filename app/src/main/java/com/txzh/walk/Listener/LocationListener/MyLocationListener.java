@@ -18,12 +18,12 @@ public class MyLocationListener extends BDAbstractLocationListener {
     public static double lo,la;
     public static float ra;
     public BDLocation location;
-    private float mCurrentAccracy;
+
+    public static String detailAddress="";
 
     @Override
     public void onReceiveLocation(final BDLocation location) {
         StringBuffer sb = new StringBuffer(256);
-        String detailAddress="";
 
         if (location.getLocType() == BDLocation.TypeGpsLocation){                       //GPS定位
             Log.i("----","我是GPS定位："+location.getAddrStr());
@@ -68,6 +68,9 @@ public class MyLocationListener extends BDAbstractLocationListener {
         double longitude = location.getLongitude();    //获取经度信息
         float radius = location.getRadius();    //获取定位精度，默认值为0.0f
         String coorType = location.getCoorType();
+
+
+        lo = longitude;la = latitude;
         //获取经纬度坐标类型，以LocationClientOption中设置过的坐标类型为准
         // 获取定位类型、定位错误返回码，具体信息可参照类参考中BDLocation类中的说明
 
@@ -75,7 +78,7 @@ public class MyLocationListener extends BDAbstractLocationListener {
         MyLocationData locData = new MyLocationData.Builder()
                 .accuracy(location.getRadius())
                 // 此处设置开发者获取到的方向信息，顺时针0-360
-                .direction(mCurrentAccracy).latitude(location.getLatitude())
+                .direction(100).latitude(location.getLatitude())
                 .longitude(location.getLongitude()).build();
         // 设置定位数据
         mBaiduMap.setMyLocationData(locData);
@@ -83,16 +86,12 @@ public class MyLocationListener extends BDAbstractLocationListener {
         //判断是否是第一次定位
         if (ifFrist) {
 
-            LatLng ll = new LatLng(location.getLatitude(),
-
-                    location.getLongitude());
+            LatLng ll = new LatLng(location.getLatitude(),location.getLongitude());
 
             MapStatusUpdate update = MapStatusUpdateFactory.newLatLng(ll);
 
             // 移动到某经纬度
-
             mBaiduMap.animateMapStatus(update);
-
             update = MapStatusUpdateFactory.zoomBy(5f);
 
             // 放大
@@ -102,7 +101,7 @@ public class MyLocationListener extends BDAbstractLocationListener {
 
         }
 
-        Log.i("---------", mCurrentAccracy+detailAddress+location.getLocationDescribe()+location.getCityCode() + "---" + latitude + "--" + longitude + "----" + location.getLocType() + "--" + location.getCountry() + "--" + location.getCity() + "--" + location.getAddrStr());
+        Log.i("---------", detailAddress+location.getLocationDescribe()+location.getCityCode() + "---" + latitude + "--" + longitude + "----" + location.getLocType() + "--" + location.getCountry() + "--" + location.getCity() + "--" + location.getAddrStr());
 
 
     }

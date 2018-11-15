@@ -1,0 +1,270 @@
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/group_describle_linear"
+        android:layout_alignParentTop="true"
+        app:layout_heightPercent="10%"
+        app:layout_widthPercent="100%"
+        android:background="@color/Blue">
+
+
+        <TextView
+            android:id="@+id/back_group_describle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@drawable/create_group_back_arrow_left_32dp"/>
+
+        <TextView
+            android:id="@+id/group_name_group_describle"
+            android:layout_width="0dp"
+            android:layout_weight="6"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="群昵称"
+            android:textSize="25dp"
+            android:textColor="@color/White"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_below="@+id/group_describle_linear"
+        app:layout_widthPercent="100%"
+        app:layout_heightPercent="90%"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_marginBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.5">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="25dp"
+                    android:gravity="center_vertical"
+                    android:layout_height="match_parent"
+                    android:text="群员人数："/>
+
+                <TextView
+                    android:id="@+id/group_count_group_describle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:text="1"
+                    android:textSize="25dp"
+                    android:gravity="center_vertical"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_marginBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/group_man_count_group_describle"
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="25dp"
+                    android:drawableLeft="@drawable/personal_32"
+                    android:gravity="center_vertical"
+                    android:text="：9"/>
+
+                <TextView
+                    android:id="@+id/group_woman_count_group_describle"
+                    android:layout_height="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="25dp"
+                    android:drawableLeft="@drawable/personal_32"
+                    android:gravity="center_vertical"
+                    android:text="：9"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_marginBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_height="match_parent"
+                    android:textSize="25dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:text="群公告"/>
+
+                <TextView
+                    android:id="@+id/group_notice_tv_group_describle"
+                    android:layout_height="match_parent"
+                    android:textSize="25dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"
+                    android:text="编辑"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
+
+        <LinearLayout
+            android:layout_marginBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2">
+
+                <EditText
+                    android:id="@+id/group_notice_et_group_describle"
+                    android:layout_width="match_parent"
+                    android:layout_weight="3"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="top"
+                    android:inputType="textMultiLine"
+                    android:minLines="8"
+                    android:maxLines="10" />
+
+        </LinearLayout>
+
+
+
+
+
+
+
+
+            <LinearLayout
+                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="2">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_height="match_parent"
+                        android:textSize="25dp"
+                        android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:text="群描述"/>
+
+                    <TextView
+                        android:id="@+id/group_describle_tv_group_describle"
+                        android:layout_height="match_parent"
+                        android:textSize="25dp"
+                        android:layout_weight="1"
+                        android:layout_width="0dp"
+                        android:text="编辑"/>
+
+                </LinearLayout>
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_marginBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2">
+
+            <EditText
+                android:id="@+id/gorup_describle_et_group_describle"
+                android:layout_width="match_parent"
+                android:layout_weight="3"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:minLines="8"
+                android:maxLines="10" />
+
+        </LinearLayout>
+
+
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/out_group_describle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="退出群"
+                android:textSize="25dp"/>
+            <TextView
+                android:id="@+id/disband_group_describle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="解散群"
+                android:textSize="25dp"/>
+            <TextView
+                android:id="@+id/finish_edit_group_describle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="完成编辑"
+                android:visibility="gone"
+                android:textSize="25dp"/>
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+
+</android.support.percent.PercentRelativeLayout>

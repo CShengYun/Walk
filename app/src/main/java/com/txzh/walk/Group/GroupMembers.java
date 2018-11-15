@@ -1,18 +1,25 @@
 package com.txzh.walk.Group;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.txzh.walk.Adapter.GroupMemberInfoAdapter;
+import com.txzh.walk.Bean.GroupMemberInfoBean;
 import com.txzh.walk.Bean.GroupMemberLocationBean;
+import com.txzh.walk.Fragment.GroupFragment;
 import com.txzh.walk.HomePage.WalkHome;
+import com.txzh.walk.MainActivity;
 import com.txzh.walk.R;
 
 import org.json.JSONArray;
@@ -20,6 +27,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -28,9 +37,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.txzh.walk.Fragment.GroupFragment.groupMemberInfoBeanList;
 import static com.txzh.walk.Fragment.MapFragment.groupMemberLocationBeanList;
+import static com.txzh.walk.Group.GroupDescrible.isObtainGroupDescrible;
 import static com.txzh.walk.HomePage.WalkHome.context;
+import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainGroupInfo;
+import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainGroupMember;
 import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainGroupPositionInfo;
 
 public class GroupMembers extends AppCompatActivity implements View.OnClickListener {
@@ -40,12 +51,17 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
     private GroupMemberInfoAdapter groupMemberInfoAdapter;                //群成员适配器
 
     private Bundle bundle;                                                  //接收传过来的数据
-    private String groupName,groupID;                                      //保存传过来的数据
+    private String groupName,groupID,groupHostID;                                      //保存传过来的数据
     private String isObationGroupMemberLocation;
 
-    private Handler handler;
 
-    public static boolean isLocation = false;
+    public static List<GroupMemberInfoBean> groupMemberInfoBeanList = new ArrayList<GroupMemberInfoBean>();
+    public static boolean isLocation=false;                                 //是否获取到群成员位置，显示在地图上
+
+    private String isObtainGroupMember="";                                      //判断是否获取所有群成员
+    private Intent intent;                                                      //开启群成员acticity
+    private int groupMemberCount = 0,groupManCount = 0,groupWomanCount = 0;           //群成员、男、女数量
+    private String groupDescrible = "",groupAnnouncement = "";
 
     public GroupMembers(){
 
@@ -59,13 +75,12 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_members);
-
+        requestGroupMember();                                                       //发送请求获取群组成员
         init();                                                                     //实例化对象
     }
 
     //实例化对象、接收数据
     public void init(){
-        handler = new Handler();
 
         back_group_member = (TextView)findViewById(R.id.tv_back_group_member);
         group_name_group_member = (TextView)findViewById(R.id.tv_group_name_group_member);
@@ -78,10 +93,6 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
         location_group_member.setOnClickListener(this);
         group_describle_group_member.setOnClickListener(this);
 
-
-        bundle=getIntent().getBundleExtra("groupNameID");
-        groupName = bundle.getString("groupName");
-        groupID = bundle.getString("groupID");
         group_name_group_member.setText(groupName);                            //设置群组昵称
 
         listview_group_member = (ListView)findViewById(R.id.listview_group_member);
@@ -94,6 +105,10 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
         int id = v.getId();
         switch (id){
             case R.id.tv_back_group_member:                                     //返回
+                intent = new Intent(GroupMembers.this, WalkHome.class);
+                intent.putExtra("flag",1);
+                startActivity(intent);
+                GroupMembers.this.finish();
                 break;
 
             case R.id.tv_add_group_member:                                     //添加群
@@ -101,18 +116,103 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
 
             case R.id.tv_location_group_member:                                 //群员位置
                 obtainGroupMemberLocation();
-
                 break;
 
             case R.id.tv_group_describle_group_member:                            //群简介
+                obtainGroupDescrible();
                 break;
 
         }
     }
 
-    public void obtainGroupMemberLocation(){
+//发送请求，请求群成员。
+    public void requestGroupMember(){
+
+        bundle=getIntent().getBundleExtra("groupInfo");
+        groupName = bundle.getString("groupName");
+        groupID = bundle.getString("groupID");
+        groupHostID = bundle.getString("groupHostID");
         OkHttpClient client = new OkHttpClient();
 
+                FormBody formBody = new FormBody.Builder()
+                        .add("groupID",groupID)
+                        .build();
+
+                Request request = new Request.Builder()
+                        .url(URL_obtainGroupMember)
+                        .post(formBody)
+                        .build();
+
+                client.newCall(request).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                    }
+
+                    @Override
+                    public void onResponse(Call call, final Response response) throws IOException {
+                        obtainGroupMember(response);
+                    }
+                });
+    }
+
+    //异步POST方法获取我管理的和我加入的群成员
+    public void obtainGroupMember(final Response response){
+        if(!response.isSuccessful()){
+            return;
+        }
+        groupMemberInfoBeanList.clear();
+        try {
+            JSONObject jsonObject = new JSONObject(response.body().string());
+            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            isObtainGroupMember = jsonObject.getString("success");
+            for(int i=0;i<jsonArray.length();i++){
+                JSONObject object = (JSONObject) jsonArray.get(i);
+                GroupMemberInfoBean groupMemberInfoBean = new GroupMemberInfoBean();
+
+                String userID = object.getString("userID");
+                //                    String headPath = object.getString("headPath");
+                String nickName = object.getString("nickName");
+                String sex = object.getString("sex");
+                //                    String status = object.getString("status");
+
+                groupMemberInfoBean.setGroupMemberID(object.getString("userID"));
+                //                    groupMemberInfoBean.setGroupMemberHeadPath(object.getString("headPath"));
+                groupMemberInfoBean.setGroupMemberNiceName(object.getString("nickName"));
+                groupMemberInfoBean.setGroupMemberSex(object.getString("sex"));
+                //                    groupMemberInfoBean.setGroupMemberStatue(object.getString("status"));
+
+                groupMemberInfoBeanList.add(groupMemberInfoBean);
+                groupMemberCount++;
+                if(object.getString("sex").equals("男")){
+                    groupManCount++;
+                }else if(object.getString("sex").equals("女")){
+                    groupWomanCount++;
+                }
+                Log.i("******","我是管理群的群成员："+userID+"----"+nickName+"----"+sex+"----"+isObtainGroupMember);
+            }
+            if(isObtainGroupMember.equals("true")){
+
+            }else if(isObtainGroupMember.equals("false")) {
+                Toast.makeText(context,"服务器繁忙，请重新点击加载！",Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(context,"当前网络状况不佳，请重新点击加载！",Toast.LENGTH_SHORT).show();
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+
+
+//获取群成员位置
+    public void obtainGroupMemberLocation(){
+        OkHttpClient client = new OkHttpClient();
         FormBody formBody = new FormBody.Builder()
                 .add("groupID",groupID)
                 .build();
@@ -135,50 +235,122 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
                 }
                 groupMemberLocationBeanList.clear();
 
-                        try {
-                            JSONObject jsonObject = new JSONObject(response.body().string());
-                            JSONArray jsonArray = jsonObject.getJSONArray("data");
-                            isObationGroupMemberLocation = jsonObject.getString("success");
+                try {
+                    JSONObject jsonObject = new JSONObject(response.body().string());
+                    JSONArray jsonArray = jsonObject.getJSONArray("data");
+                    isObationGroupMemberLocation = jsonObject.getString("success");
 
-                            for(int i=0;i<jsonArray.length();i++){
-                                GroupMemberLocationBean groupMemberLocationBean = new GroupMemberLocationBean();
-                                JSONObject object = (JSONObject)jsonArray.get(i);
-                                String nickName = object.getString("nickName");
-                                String phone = object.getString("phone");
-                                String latitude = object.getString("latitude");
-                                String longtitude = object.getString("longititude");
-                                String userID = object.getString("userID");
+                    for(int i=0;i<jsonArray.length();i++){
+                        GroupMemberLocationBean groupMemberLocationBean = new GroupMemberLocationBean();
+                        JSONObject object = (JSONObject)jsonArray.get(i);
+                        String nickName = object.getString("nickName");
+                        String phone = object.getString("phone");
+                        String latitude = object.getString("latitude");
+                        String longtitude = object.getString("longititude");
+                        String userID = object.getString("userID");
 
-                                groupMemberLocationBean.setNickName(object.getString("nickName"));
-                                groupMemberLocationBean.setPhone(object.getString("phone"));
-                                groupMemberLocationBean.setLatitude(object.getString("latitude"));
-                                groupMemberLocationBean.setLongitude(object.getString("longititude"));
-                                groupMemberLocationBean.setUserID(object.getString("userID"));
+                        groupMemberLocationBean.setNickName(object.getString("nickName"));
+                        groupMemberLocationBean.setPhone(object.getString("phone"));
+                        groupMemberLocationBean.setLatitude(object.getString("latitude"));
+                        groupMemberLocationBean.setLongitude(object.getString("longititude"));
+                        groupMemberLocationBean.setUserID(object.getString("userID"));
 
-                                groupMemberLocationBean.setHeadPath("R.drawable.p2");
+                        groupMemberLocationBean.setHeadPath("R.drawable.p2");
 
-                                groupMemberLocationBeanList.add(groupMemberLocationBean);
-                                Log.i("###","我是位置信息："+nickName+"-----"+phone+"-----"+latitude+"-----"+longtitude+"-----"+userID);
-                            }
+                        groupMemberLocationBeanList.add(groupMemberLocationBean);
+                        Log.i("###","我是位置信息："+nickName+"-----"+phone+"-----"+latitude+"-----"+longtitude+"-----"+userID);
+                    }
 
-                            if(isObationGroupMemberLocation.equals("true")){
-                                isLocation=true;
-                                Intent intent = new Intent(GroupMembers.this, WalkHome.class);
-
-                                finish();
-                                startActivity(intent);
-                            }else if(isObationGroupMemberLocation.equals("false")) {
-                                Toast.makeText(context,"服务器繁忙，请重新点击加载！",Toast.LENGTH_SHORT).show();
-                            }else {
-                                Toast.makeText(context,"当前网络状况不佳，请重新点击加载！",Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    if(isObationGroupMemberLocation.equals("true")){
+                        isLocation = true;
+                        Intent intent = new Intent(GroupMembers.this, WalkHome.class);
+                        startActivity(intent);
+                    }else if(isObationGroupMemberLocation.equals("false")) {
+                        Toast.makeText(context,"服务器繁忙，请重新点击加载！",Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(context,"当前网络状况不佳，请重新点击加载！",Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
             }
         });
     }
+
+
+//获取群简介
+    private void obtainGroupDescrible(){
+        OkHttpClient client = new OkHttpClient();
+
+        FormBody formBody = new FormBody.Builder()
+                .add("groupID",groupID)
+                .build();
+
+        final Request request = new Request.Builder()
+                .url(URL_obtainGroupInfo)
+                .post(formBody)
+                .build();
+        Response response;
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+                Log.i("@@@@","请求失败。");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if(!response.isSuccessful()){
+                    return;
+                }
+                try {
+                    JSONObject jsonObject  = new JSONObject(response.body().string());
+                    JSONArray jsonArray = jsonObject.getJSONArray("data");
+                    isObtainGroupDescrible = Boolean.valueOf(jsonObject.getString("success"));
+                    for(int i=0;i<jsonArray.length();i++) {
+                        JSONObject object = (JSONObject) jsonArray.get(i);
+                        groupDescrible = object.getString("groupDescribe");
+                        groupAnnouncement = object.getString("groupAnnouncement");
+                    }
+                    if(isObtainGroupDescrible){
+                        bundle.clear();
+                        bundle.putString("groupMemberCount",groupMemberCount+"");
+                        bundle.putString("groupManCount",groupManCount+"");
+                        bundle.putString("groupWomanCount",groupWomanCount+"");
+                        bundle.putString("groupName",groupName);
+                        bundle.putString("groupID",groupID);
+                        bundle.putString("groupHostID",groupHostID);
+                        bundle.putString("groupDescrible",groupDescrible);
+                        bundle.putString("groupAnnouncement",groupAnnouncement);
+                        intent = new Intent(GroupMembers.this,GroupDescrible.class);
+                        intent.putExtra("groupDescrible",bundle);
+                        startActivity(intent);
+                    }else if(!isObtainGroupDescrible) {
+                        Toast.makeText(context,"服务器繁忙,获取失败，请重新点击加载！",Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(context,"当前网络状况不佳，请重新点击加载！",Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -1,11 +1,19 @@
 package com.txzh.walk.Fragment;
 
+import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
@@ -14,24 +22,47 @@ import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.BitmapDescriptorFactory;
+import com.baidu.mapapi.map.InfoWindow;
+import com.baidu.mapapi.map.MapPoi;
+import com.baidu.mapapi.map.MapStatusUpdate;
+import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.search.core.SearchResult;
+import com.baidu.mapapi.search.geocode.GeoCodeResult;
+import com.baidu.mapapi.search.geocode.GeoCoder;
+import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.baidu.mapapi.search.route.BikingRouteResult;
+import com.baidu.mapapi.search.route.DrivingRoutePlanOption;
+import com.baidu.mapapi.search.route.DrivingRouteResult;
+import com.baidu.mapapi.search.route.IndoorRouteResult;
+import com.baidu.mapapi.search.route.MassTransitRouteResult;
+import com.baidu.mapapi.search.route.OnGetRoutePlanResultListener;
+import com.baidu.mapapi.search.route.PlanNode;
+import com.baidu.mapapi.search.route.RoutePlanSearch;
+import com.baidu.mapapi.search.route.TransitRouteResult;
+import com.baidu.mapapi.search.route.WalkingRouteResult;
 import com.txzh.walk.Bean.GroupMemberLocationBean;
 import com.txzh.walk.Listener.LocationListener.MyLocationListener;
-import com.txzh.walk.Listener.MarkerListener.MyMarkerListener;
 import com.txzh.walk.R;
+import com.txzh.walk.overlayutil.DrivingRouteOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.txzh.walk.Group.GroupMembers.isLocation;
+import static com.txzh.walk.HomePage.WalkHome.context;
+import static com.txzh.walk.Listener.LocationListener.MyLocationListener.la;
+import static com.txzh.walk.Listener.LocationListener.MyLocationListener.lo;
 
 
-public class MapFragment extends Fragment{
+public class MapFragment extends Fragment implements OnGetGeoCoderResultListener {
     @SuppressWarnings("unused")
     public static MapView mMapView;
     View view;
@@ -39,22 +70,25 @@ public class MapFragment extends Fragment{
 
     public static BaiduMap mBaiduMap;//定义地图实例
     public static boolean ifFrist = true;//判断是否是第一次进去
+    public static List<GroupMemberLocationBean> groupMemberLocationBeanList = new ArrayList<GroupMemberLocationBean>();     //群组成员位置信息
+    public InfoWindow currentInfoWindow;            //marker点击弹出信息窗口
+
+    public RoutePlanSearch mSearch = null;    // 搜索模块，也可去掉地图模块独立使用
+    public GeoCoder mCoder = null;                 //把经纬度坐标转化为城市地址
+
+    public OverlayOptions overlayOptions = null;        //地图上的覆盖物
 
 
     public static LocationClient mLocationClient = null;//定义LocationClient
     public MyLocationListener myListener = new MyLocationListener();//继承BDAbstractLocationListener的class
 
-    public static MyMarkerListener markerListener = new MyMarkerListener();;
-
-    public static List<GroupMemberLocationBean> groupMemberLocationBeanList = new ArrayList<GroupMemberLocationBean>();
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if(isLocation){
             mBaiduMap.clear();
-            mBaiduMap.removeMarkerClickListener(markerListener);
             addInfosOverlay(groupMemberLocationBeanList);
-            mBaiduMap.setOnMarkerClickListener(markerListener);
+            addListenerMaker();
         }
     }
 
@@ -82,8 +116,10 @@ public class MapFragment extends Fragment{
     public void initLocation(){
         mBaiduMap = mMapView.getMap();                  //获取地图实例对象
 
-        mBaiduMap.setMyLocationEnabled(true);                   // 开启定位图层
+        mCoder = GeoCoder.newInstance();            //初始化GeoCoder
+        mCoder.setOnGetGeoCodeResultListener(this);
 
+        mBaiduMap.setMyLocationEnabled(true);                   // 开启定位图层
         mBaiduMap.setMyLocationConfiguration(new MyLocationConfiguration(MyLocationConfiguration.LocationMode.FOLLOWING, true,null));//设置定位图标是否有箭头
 
         LocationClientOption option = new LocationClientOption();
@@ -112,9 +148,7 @@ public class MapFragment extends Fragment{
     public void onDestroy() {
         super.onDestroy();
         //在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
-
-        Log.i("##","我销毁了监听。");
-        mBaiduMap.removeMarkerClickListener(markerListener);
+        mMapView.onDestroy();
 
     }
 
@@ -133,12 +167,11 @@ public class MapFragment extends Fragment{
     }
 
 
-
     //自定义人物位置图标
     public void addInfosOverlay(List<GroupMemberLocationBean> groupMemberLocationBeanList)	{
         mBaiduMap.clear();
         latLng = null;
-        OverlayOptions overlayOptions = null;
+        overlayOptions = null;
         Marker marker = null;
         for (GroupMemberLocationBean groupMemberLocationBean:groupMemberLocationBeanList){
             // 位置
@@ -154,58 +187,170 @@ public class MapFragment extends Fragment{
         }
 
         // 将地图移到到最后一个经纬度位置
-    //    MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(latLng);
-    //    mBaiduMap.setMapStatus(u);
+        MapStatusUpdate u = MapStatusUpdateFactory.newLatLng(latLng);
+        mBaiduMap.setMapStatus(u);
     }
 
-/*
+
     //显示人物图标监听
     public void addListenerMaker() {
-
         mBaiduMap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+
+
                 final GroupMemberLocationBean groupMemberLocationBean = (GroupMemberLocationBean) marker.getExtraInfo().get("groupMemberLocationBean");
-
-                View view = getLayoutInflater().inflate(R.layout.marker, null);
-                TextView marker_name = (TextView) view.findViewById(R.id.marker_name);
-                TextView marker_phone = (TextView) view.findViewById(R.id.marker_phone);
-                TextView marker_address = (TextView) view.findViewById(R.id.marker_address);
-
-                SpannableString titleName = new SpannableString(groupMemberLocationBean.getNickName());
-                titleName.setSpan(new ForegroundColorSpan(Color.RED), 0, titleName.length(), 0);
-                marker_name.setText(titleName);
-
-                SpannableString textPhone = new SpannableString(groupMemberLocationBean.getPhone());
-                textPhone.setSpan(new ForegroundColorSpan(Color.BLUE), 0, textPhone.length(), 0);
-                marker_phone.setText(textPhone);
-
-                SpannableString textAddress = new SpannableString(groupMemberLocationBean.headPath);
-                textAddress.setSpan(new ForegroundColorSpan(Color.BLUE), 0, textAddress.length(), 0);
-                marker_address.setText(textAddress);
-
                 latLng = new LatLng(Double.parseDouble(groupMemberLocationBean.getLatitude()), Double.parseDouble(groupMemberLocationBean.getLongitude()));
-                InfoWindow infoWindow = new InfoWindow(BitmapDescriptorFactory.fromView(view), latLng, -47, new InfoWindow.OnInfoWindowClickListener() {
-                    @Override
-                    public void onInfoWindowClick() {
-                        mBaiduMap.hideInfoWindow();
-                    }
-                });
 
-                mBaiduMap.showInfoWindow(infoWindow);
-
+                currentInfoWindow = new InfoWindow(getInfoWindoView(marker,groupMemberLocationBean),latLng, -77);
+                mBaiduMap.showInfoWindow(currentInfoWindow);
                 return true;
             }
         });
+    }
+
+
+    private View getInfoWindoView(Marker marker, final GroupMemberLocationBean groupMemberLocationBean){
+        View view = View.inflate(context,R.layout.marker, null);
+        TextView marker_name = (TextView) view.findViewById(R.id.marker_name);
+        final TextView marker_phone = (TextView) view.findViewById(R.id.marker_phone);
+        TextView marker_address = (TextView) view.findViewById(R.id.marker_address);
+        final Button marker_call = (Button) view.findViewById(R.id.marker_call);
+        final Button marker_destination = (Button)view.findViewById(R.id.marker_destination);
+
+        SpannableString titleName = new SpannableString(groupMemberLocationBean.getNickName());
+        titleName.setSpan(new ForegroundColorSpan(Color.RED), 0, titleName.length(), 0);
+        marker_name.setText(titleName);
+
+        SpannableString textPhone = new SpannableString(groupMemberLocationBean.getPhone());
+        textPhone.setSpan(new ForegroundColorSpan(Color.BLUE), 0, textPhone.length(), 0);
+        marker_phone.setText(textPhone);
+
+        SpannableString textAddress = new SpannableString(groupMemberLocationBean.headPath);
+        textAddress.setSpan(new ForegroundColorSpan(Color.BLUE), 0, textAddress.length(), 0);
+        marker_address.setText(textAddress);
+
+        marker_call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("###","我点击了呼叫。");
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                Uri data = Uri.parse("tel:" + marker_phone.getText().toString());
+                intent.setData(data);
+                startActivity(intent);
+            }
+        });
+
+        marker_destination.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getRoute(groupMemberLocationBean);
+
+
+            }
+        });
+
+        mBaiduMap.setOnMapClickListener(new BaiduMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                mBaiduMap.hideInfoWindow();
+            }
+
+            @Override
+            public boolean onMapPoiClick(MapPoi mapPoi) {
+                return false;
+            }
+      });
+
+        return view;
+    }
+
+    public void getRoute(GroupMemberLocationBean groupMemberLocationBean){
+        LatLng latLngFrom = new LatLng(la,lo);
+        LatLng latLngTo = new LatLng(Double.parseDouble(groupMemberLocationBean.getLatitude()), Double.parseDouble(groupMemberLocationBean.getLongitude()));
+        mCoder.reverseGeoCode(new ReverseGeoCodeOption().location(latLngTo));
+
+        initPlan();        //规划路线
+        PlanNode startNode = PlanNode.withLocation(latLngFrom);
+        PlanNode endNode = PlanNode.withLocation(latLngTo);
+
+        mSearch.drivingSearch(new DrivingRoutePlanOption().from(startNode).to(endNode));            //驾车路线规划
+
+    }
+
+    private void initPlan() {
+        mSearch = RoutePlanSearch.newInstance();
+        mSearch.setOnGetRoutePlanResultListener(new OnGetRoutePlanResultListener() {
+            @Override
+            public void onGetWalkingRouteResult(WalkingRouteResult walkingRouteResult) {
+
+            }
+
+            @Override
+            public void onGetTransitRouteResult(TransitRouteResult transitRouteResult) {
+
+            }
+
+            @Override
+            public void onGetMassTransitRouteResult(MassTransitRouteResult massTransitRouteResult) {
+
+            }
+
+            @Override
+            public void onGetDrivingRouteResult(DrivingRouteResult drivingRouteResult) {
+                if (drivingRouteResult == null || drivingRouteResult.error != SearchResult.ERRORNO.NO_ERROR) {
+                    Toast.makeText(context, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
+                }
+                if (drivingRouteResult.error == SearchResult.ERRORNO.AMBIGUOUS_ROURE_ADDR) {
+                    // 起终点或途经点地址有岐义，通过以下接口获取建议查询信息
+                    drivingRouteResult.getSuggestAddrInfo();
+                    return;
+                }
+                if (drivingRouteResult.error == SearchResult.ERRORNO.NO_ERROR) {
+                    if (drivingRouteResult.getRouteLines().size() >= 1) {
+//                        DrivingRouteLine route = drivingRouteResult.getRouteLines().get(0);
+                        DrivingRouteOverlay overlay = new DrivingRouteOverlay(mBaiduMap);
+    //                    overlayOptions = overlay;
+
+                        mBaiduMap.setOnMarkerClickListener(overlay);
+                        overlay.setData(drivingRouteResult.getRouteLines().get(0));
+                        overlay.addToMap();
+                        overlay.zoomToSpan();
+                    } else {
+                        Log.d("route result", "结果数<0");
+                        return;
+                    }
+                }
+            }
+
+            @Override
+            public void onGetIndoorRouteResult(IndoorRouteResult indoorRouteResult) {
+
+            }
+
+            @Override
+            public void onGetBikingRouteResult(BikingRouteResult bikingRouteResult) {
+
+            }
+        });
+    }
+    ///以下两个方法是把经纬度转化为具体城市的坐标
+
+    @Override
+    public void onGetGeoCodeResult(GeoCodeResult geoCodeResult) {
+
+    }
+
+    @Override
+    public void onGetReverseGeoCodeResult(ReverseGeoCodeResult reverseGeoCodeResult) {
+        if (reverseGeoCodeResult == null || reverseGeoCodeResult.error != SearchResult.ERRORNO.NO_ERROR) {
+            Toast.makeText(getActivity(), "抱歉，未能找到结果", Toast.LENGTH_LONG).show();
+            return;		}
+            String  s =  reverseGeoCodeResult.getAddress();
+
+        Toast.makeText(getActivity(), s, Toast.LENGTH_LONG).show();
 
 
 
-
-
-
-
-
-
-
-    }*/
+    }
 }

@@ -2,8 +2,10 @@ package com.txzh.walk.Fragment;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,11 +17,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.txzh.walk.Adapter.GroupInfoAdapter;
+import com.txzh.walk.Bean.GroupInfoBean;
 import com.txzh.walk.Bean.GroupMemberInfoBean;
 import com.txzh.walk.Group.CreateGroup;
 import com.txzh.walk.Group.GroupMembers;
 import com.txzh.walk.Group.searchGroup;
 import com.txzh.walk.R;
+import com.txzh.walk.ToolClass.Tools;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,12 +38,11 @@ import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static com.txzh.walk.HomePage.WalkHome.addGroupInfoBeanList;
 import static com.txzh.walk.HomePage.WalkHome.context;
-import static com.txzh.walk.HomePage.WalkHome.isObtainAllGroup;
-import static com.txzh.walk.HomePage.WalkHome.manageGroupInfoBeanList;
+import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainAllGroupId;
 import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainGroupMember;
 
 public class GroupFragment extends Fragment implements View.OnClickListener {
@@ -50,15 +53,18 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
 
     protected Drawable arrow_right_group_pic = null;                        //关闭群组向右的箭头
     protected Drawable arrow_down_group_pic = null;                         //展开群组向下的箭头
+
+    public static List<GroupInfoBean> manageGroupInfoBeanList = new ArrayList<GroupInfoBean>();                       //我管理群组信息列表
+    public static List<GroupInfoBean> addGroupInfoBeanList = new ArrayList<GroupInfoBean>();                       //我加入的组信息列表
+    public static boolean isObtainAllGroup=false;
+
+
     public static boolean is_onclik_manage_group = true;                    //判断展开、关闭我管理的的群组
     public static boolean is_onclik_add_group = true;                       //判断展开、关闭我加入的的群组
-    public static List<GroupMemberInfoBean> groupMemberInfoBeanList = new ArrayList<GroupMemberInfoBean>();
 
     public GroupInfoAdapter manageGroupAdapter;                                  //群组适配器
-    private Handler handler;
-    private String isObtainGroupMember="";                                      //判断是否获取所有群成员
-    private Intent intent;                                                      //开启群成员acticity
     private Bundle bundle = new Bundle();                                                      //传送数据
+    private Intent intent = null;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +74,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         System.out.println("我滑动了第二个界面22");
         view = inflater.inflate(R.layout.fragment_group, container, false);
+        obtainAllGroup(1+"");              //获取所有群组信息
         init();             //实例化和监听控件
         GroupListListener();
         return view;
@@ -75,7 +82,6 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
 
     //实例化和监听控件
     public void init(){
-        handler = new Handler();
 
         //实例化和监听群组搜索、创建
         group_tv_search = (TextView)view.findViewById(R.id.group_tv_search);
@@ -95,10 +101,10 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
 
 
         //展开、关闭群组的带箭头图片
-        arrow_right_group_pic = getResources().getDrawable(R.drawable.group_arrow_down_32dp);
-        arrow_right_group_pic.setBounds(0,0,arrow_right_group_pic.getMinimumWidth(),arrow_right_group_pic.getMinimumHeight());
-        arrow_down_group_pic = getResources().getDrawable(R.drawable.group_arrow_right_32dp);
+        arrow_down_group_pic = getResources().getDrawable(R.drawable.group_arrow_down_32dp);
         arrow_down_group_pic.setBounds(0,0,arrow_down_group_pic.getMinimumWidth(),arrow_down_group_pic.getMinimumHeight());
+        arrow_right_group_pic = getResources().getDrawable(R.drawable.group_arrow_right_32dp);
+        arrow_right_group_pic.setBounds(0,0,arrow_right_group_pic.getMinimumWidth(),arrow_right_group_pic.getMinimumHeight());
 
     }
 
@@ -132,6 +138,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
 
 
             case R.id.group_tv_add_group:                       //我加入的群组
+
                 if(isObtainAllGroup){                               //判断是否得到所有群组
                     openCloseAddGroup();                               //打开关闭我加入的群组
                     manageGroupAdapter = new GroupInfoAdapter(addGroupInfoBeanList,context);
@@ -149,11 +156,11 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
     //打开关闭我管理的群组
     public void openCloseManageGroup(){
         if(is_onclik_manage_group==true){
-            group_tv_manage_group.setCompoundDrawables(arrow_right_group_pic,null,null,null);       //改变箭头方向
+            group_tv_manage_group.setCompoundDrawables(arrow_down_group_pic,null,null,null);       //改变箭头方向
             group_lv_manage_group.setVisibility(View.VISIBLE);                                                            //设置ListView可见
             is_onclik_manage_group=!is_onclik_manage_group;
         }else if(is_onclik_manage_group==false){
-            group_tv_manage_group.setCompoundDrawables(arrow_down_group_pic,null,null,null);       //改变箭头方向
+            group_tv_manage_group.setCompoundDrawables(arrow_right_group_pic,null,null,null);       //改变箭头方向
             group_lv_manage_group.setVisibility(View.GONE);                                                              //设置ListView不可见
             is_onclik_manage_group=!is_onclik_manage_group;
         }
@@ -163,11 +170,11 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
     //打开关闭我加入的群组
     public void openCloseAddGroup(){
         if(is_onclik_add_group==true){
-            group_tv_add_group.setCompoundDrawables(arrow_right_group_pic,null,null,null);          //改变箭头方向
+            group_tv_add_group.setCompoundDrawables(arrow_down_group_pic,null,null,null);          //改变箭头方向
             group_lv_add_group.setVisibility(View.VISIBLE);                                                               //设置ListView可见
             is_onclik_add_group=!is_onclik_add_group;
         }else if(is_onclik_add_group==false){
-            group_tv_add_group.setCompoundDrawables(arrow_down_group_pic,null,null,null);           //改变箭头方向
+            group_tv_add_group.setCompoundDrawables(arrow_right_group_pic,null,null,null);           //改变箭头方向
             group_lv_add_group.setVisibility(View.GONE);                                                                  //设置ListView不可见
             is_onclik_add_group=!is_onclik_add_group;
         }
@@ -180,28 +187,10 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
                 bundle.clear();
                 bundle.putString("groupName",manageGroupInfoBeanList.get(position).getGroupName());
                 bundle.putString("groupID",manageGroupInfoBeanList.get(position).getGroupId());
-                OkHttpClient client = new OkHttpClient();
-
-                FormBody formBody = new FormBody.Builder()
-                        .add("groupID",manageGroupInfoBeanList.get(position).getGroupId())
-                        .build();
-
-                Request request = new Request.Builder()
-                        .url(URL_obtainGroupMember)
-                        .post(formBody)
-                        .build();
-
-                client.newCall(request).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                    }
-
-                    @Override
-                    public void onResponse(Call call, final Response response) throws IOException {
-                        obtainGroupMember(response);
-                    }
-                });
-
+                bundle.putString("groupHostID", manageGroupInfoBeanList.get(position).getGroupHostID());
+                intent = new Intent(context,GroupMembers.class);
+                intent.putExtra("groupInfo",bundle);
+                startActivity(intent);
             }
         });
 
@@ -209,84 +198,84 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 bundle.clear();
-                bundle.putString("groupName",manageGroupInfoBeanList.get(position).getGroupName());
-                bundle.putString("groupID",manageGroupInfoBeanList.get(position).getGroupId());
-                OkHttpClient client = new OkHttpClient();
+                bundle.putString("groupName",addGroupInfoBeanList.get(position).getGroupName());
+                bundle.putString("groupID",addGroupInfoBeanList.get(position).getGroupId());
+                bundle.putString("groupHostID", addGroupInfoBeanList.get(position).getGroupHostID());
 
-                FormBody formBody = new FormBody.Builder()
-                        .add("groupID",addGroupInfoBeanList.get(position).getGroupId())
-                        .build();
-
-                final Request request = new Request.Builder()
-                        .url(URL_obtainGroupMember)
-                        .post(formBody)
-                        .build();
-
-                client.newCall(request).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                    }
-
-                    @Override
-                    public void onResponse(Call call, final Response response) throws IOException {
-                        obtainGroupMember(response);
-                    }
-                });
+                intent = new Intent(context,GroupMembers.class);
+                intent.putExtra("groupInfo",bundle);
+                startActivity(intent);
 
             }
         });
     }
 
-    //异步POST方法获取我管理的和我加入的群成员
-    public void obtainGroupMember(final Response response){
-        if(!response.isSuccessful()){
-            return;
-        }
-        groupMemberInfoBeanList.clear();
+
+
+
+    //获取所有群组信息
+    public void obtainAllGroup(final String userID){
+        OkHttpClient client = new OkHttpClient();
+
+        RequestBody formBody=new FormBody.Builder()
+                .add("userID",""+userID)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(URL_obtainAllGroupId)
+                .post(formBody)
+                .build();
+
+        Response response;
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.i("++++","我请求的是获取所有群组：请求失败");
+            }
+
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                if(!response.isSuccessful()){
+                    return;
+                }
+                manageGroupInfoBeanList.clear();
+                addGroupInfoBeanList.clear();
 
                 try {
                     JSONObject jsonObject = new JSONObject(response.body().string());
                     JSONArray jsonArray = jsonObject.getJSONArray("data");
-                    isObtainGroupMember = jsonObject.getString("success");
-                    for(int i=0;i<jsonArray.length();i++){
+                    isObtainAllGroup = Boolean.valueOf(jsonObject.getString("success"));
+                    Log.i("----","我是判断success111111111111111："+isObtainAllGroup+jsonObject.getString("success"));
+                    for(int i=0;i<jsonArray.length();i++) {
                         JSONObject object = (JSONObject) jsonArray.get(i);
-                        GroupMemberInfoBean groupMemberInfoBean = new GroupMemberInfoBean();
+                        GroupInfoBean groupInfoBean = new GroupInfoBean();
 
-                        String userID = object.getString("userID");
-                        //                    String headPath = object.getString("headPath");
-                        String nickName = object.getString("nickName");
-                        String sex = object.getString("sex");
-                        //                    String status = object.getString("status");
+                        String groupId = object.getString("groupID");
+                        String groupName = object.getString("groupName");
+                        String groupHostID = object.getString("groupHostID");
+                        String status = object.getString("status");
 
-                        groupMemberInfoBean.setGroupMemberID(object.getString("userID"));
-                        //                    groupMemberInfoBean.setGroupMemberHeadPath(object.getString("headPath"));
-                        groupMemberInfoBean.setGroupMemberNiceName(object.getString("nickName"));
-                        groupMemberInfoBean.setGroupMemberSex(object.getString("sex"));
-                        //                    groupMemberInfoBean.setGroupMemberStatue(object.getString("status"));
+                        groupInfoBean.setGroupId(object.getString("groupID"));
+                        groupInfoBean.setGroupName(object.getString("groupName"));
+                        groupInfoBean.setGroupHostID(object.getString("groupHostID"));
+                        groupInfoBean.setStatus(object.getString("status"));
 
-                        groupMemberInfoBeanList.add(groupMemberInfoBean);
-
-                        Log.i("******","我是管理群的群成员："+userID+"----"+nickName+"----"+sex+"----"+isObtainGroupMember);
+                        if((userID).equals(object.getString("groupHostID"))){
+                            manageGroupInfoBeanList.add(groupInfoBean);
+                        }else {
+                            addGroupInfoBeanList.add(groupInfoBean);
+                        }
+                        Log.i("++++","我是JSONArray："+"群ID:"+groupId+"-------"+groupName+"-------"+"群主id："+groupHostID+"-------"+status);
                     }
 
-                    if(isObtainGroupMember.equals("true")){
-                        intent = new Intent(context,GroupMembers.class);
-                        intent.putExtra("groupNameID",bundle);
-                        startActivity(intent);
-                    }else if(isObtainGroupMember.equals("false")) {
-                        Toast.makeText(context,"服务器繁忙，请重新点击加载！",Toast.LENGTH_SHORT).show();
-                    }else {
-                        Toast.makeText(context,"当前网络状况不佳，请重新点击加载！",Toast.LENGTH_SHORT).show();
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
+            }
+        });
+
     }
+
 
 }

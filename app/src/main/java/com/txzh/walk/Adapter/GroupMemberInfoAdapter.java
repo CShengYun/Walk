@@ -40,6 +40,7 @@ public class GroupMemberInfoAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         GroupMemberInfoBean groupMemberInfoBean = groupMemberInfoBeanList.get(position);
 
         if(convertView==null){
