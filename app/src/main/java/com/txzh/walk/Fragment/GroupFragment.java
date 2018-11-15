@@ -18,6 +18,7 @@ import com.txzh.walk.Adapter.GroupInfoAdapter;
 import com.txzh.walk.Bean.GroupMemberInfoBean;
 import com.txzh.walk.Group.CreateGroup;
 import com.txzh.walk.Group.GroupMembers;
+import com.txzh.walk.Group.searchGroup;
 import com.txzh.walk.R;
 
 import org.json.JSONArray;
@@ -106,7 +107,8 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
         int id = v.getId();
         switch (id){
             case R.id.group_tv_search:                          //群组搜索
-
+                Intent intents = new Intent(getActivity(),searchGroup.class);
+                startActivity(intents);
                 break;
 
 

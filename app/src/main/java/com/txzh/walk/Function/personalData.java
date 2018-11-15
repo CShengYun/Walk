@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.R;
+import com.txzh.walk.ToolClass.DeleteCaChe;
 import com.txzh.walk.ToolClass.FileProviderUtils;
 import com.txzh.walk.ToolClass.Tools;
 import com.txzh.walk.customComponents.CircleImageView;
@@ -77,6 +78,9 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
     private String nickName; //修改后的昵称
     private String sex;    //修改后的性别
     private int id;         //id
+    private boolean headPicChange = false; //头像是否改变
+    private DeleteCaChe deleteCaChe;
+    private boolean isFirst = true;   //是否第一次使用
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,9 +115,10 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
         et_account.setText(Tools.getAccounts());
         et_Nickname.setText(Tools.getNickName());
         et_phone.setText(Tools.getPhongNumber());
+
         tv_Sex.setText(Tools.getSex());
         iv_custom.setImageUrl(Tools.getHeadPhoto(), R.drawable.headportrait, null);
-        //getBitmapFromSharedPreferences();
+        isFirst = false;
         nonEditable();
     }
 
@@ -122,6 +127,10 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.ib_Return:
                 if (flag) {
+                    headPicChange = false;
+                    Intent intent = new Intent();
+                    intent.putExtra("bitmap", bitmaps);
+                    setResult(1, intent);
                     finish();  //返回上一个Activity
                 } else {
                     getBitmapFromSharedPreferences();
@@ -178,6 +187,7 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
         flag = true;
     }
 
+
     //编辑按钮点击事件
     private void btnEdit() {
         if (flag) {
@@ -192,9 +202,11 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
             } else {
                 getBitmapFromSharedPreferences();
             }
-            flag = true;
-
             getChangePersonalMessage();
+            flag = true;
+            if (headPicChange) {
+                Tools.setHeadPicIfChange(true);
+            }
             btn_Edit.setText("编辑资料");
         }
     }
@@ -387,6 +399,8 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
                 iv_custom.setImageBitmap(bitmap);
                 isFlag = true;
                 bitmaps = bitmap;
+                headPicChange = true;
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -619,6 +633,12 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
         return file;
     }
 
-    //压缩图片文件
+    //从新获取头像
+    public void onRestart() {
+
+        super.onRestart();
+
+        getBitmapFromSharedPreferences();
+    }
 
 }

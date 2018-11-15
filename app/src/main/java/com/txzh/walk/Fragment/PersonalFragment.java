@@ -1,9 +1,14 @@
 package com.txzh.walk.Fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +22,11 @@ import com.txzh.walk.ToolClass.DeleteCaChe;
 import com.txzh.walk.ToolClass.Tools;
 import com.txzh.walk.customComponents.BottomAnimDialog;
 import com.txzh.walk.customComponents.CircleImageView;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class PersonalFragment extends Fragment implements View.OnClickListener {
     private View view;
@@ -71,7 +81,7 @@ public class PersonalFragment extends Fragment implements View.OnClickListener {
         switch (view.getId()){
             case R.id.tv_personalData:
                 Intent intent = new Intent(getActivity(),personalData.class);
-                startActivity(intent);
+               startActivityForResult(intent,1);
                 break;
             case R.id.tv_quit:
                 final BottomAnimDialog dialog =new BottomAnimDialog(getActivity(),"退出登录","关闭");
@@ -100,5 +110,35 @@ public class PersonalFragment extends Fragment implements View.OnClickListener {
     }
 
     //activity 重新显示时调用
+    public void onStart() {
 
+        super.onStart();
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("testSP", MODE_PRIVATE);
+        //第一步:取出字符串形式的Bitmap
+        String imageString = sharedPreferences.getString("image", "");
+        //第二步：利用Base64将字符串转换为ByteArryInputStream
+        byte[] byteArray = Base64.decode(imageString, Base64.DEFAULT);
+        if (byteArray.length == 0) {
+            @SuppressLint("ResourceType")
+            InputStream is = getResources().openRawResource(R.drawable.headportrait);
+            Bitmap mBitmap = BitmapFactory.decodeStream(is);
+            iv_customs.setImageBitmap(mBitmap);
+        } else {
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArray);
+            //第三步：利用ByteArrayInputStream生成Bitmap
+            Bitmap bitmap = BitmapFactory.decodeStream(byteArrayInputStream);
+            iv_customs.setImageBitmap(bitmap);
+        }
+
+    }
+
+   /* public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(requestCode == 1){
+            if(resultCode == 1){
+                iv_customs.setImageBitmap(data.get);
+            }
+        }
+    }
+*/
 }

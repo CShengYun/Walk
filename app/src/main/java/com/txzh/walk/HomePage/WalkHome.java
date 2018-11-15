@@ -25,6 +25,7 @@ import com.txzh.walk.Fragment.NewsFragment;
 import com.txzh.walk.Fragment.PersonalFragment;
 import com.txzh.walk.MyViewPager.MyViewPager;
 import com.txzh.walk.R;
+import com.txzh.walk.ToolClass.Tools;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -190,7 +191,7 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
                                 groupInfoBean.setGroupHostID(object.getString("groupHostID"));
                                 groupInfoBean.setStatus(object.getString("status"));
 
-                                if(object.getString("groupID").equals(object.getString("groupHostID"))){
+                                if(String.valueOf(Tools.getUserID()).equals(object.getString("groupHostID"))){
                                     manageGroupInfoBeanList.add(groupInfoBean);
                                 }else {
                                     addGroupInfoBeanList.add(groupInfoBean);

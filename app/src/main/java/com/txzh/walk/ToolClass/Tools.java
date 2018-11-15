@@ -7,6 +7,16 @@ public class Tools {
     public static String sex;                    //性别
     public static String headPhoto;              //头像
     public static int userID;                      //用户id
+    public static boolean headPicIfChange;          //判断头像是否改变
+    public static boolean isHeadPicIfChange() {
+        return headPicIfChange;
+    }
+
+    public static void setHeadPicIfChange(boolean headPicIfChange) {
+        Tools.headPicIfChange = headPicIfChange;
+    }
+
+
     public static int getUserID() {
         return userID;
     }
