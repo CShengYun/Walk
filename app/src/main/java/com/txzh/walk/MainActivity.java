@@ -46,7 +46,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static int id;
     private EditText et_accounts,et_password;
     private String accounts,password;
-    private Handler handler;
+
+    public static String userID = 1+"";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         showContacts();
         init();
+
+
+
 
     }
 
@@ -72,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tv_registered_account.setOnClickListener(this);
         et_accounts = findViewById(R.id.et_accounts);
         et_password = findViewById(R.id.et_password);
-        handler = new Handler();
     }
 
 

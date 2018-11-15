@@ -38,10 +38,20 @@ import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.baidu.mapapi.search.route.BikingRouteResult;
+import com.baidu.mapapi.search.route.DrivingRoutePlanOption;
+import com.baidu.mapapi.search.route.DrivingRouteResult;
+import com.baidu.mapapi.search.route.IndoorRouteResult;
+import com.baidu.mapapi.search.route.MassTransitRouteResult;
+import com.baidu.mapapi.search.route.OnGetRoutePlanResultListener;
+import com.baidu.mapapi.search.route.PlanNode;
 import com.baidu.mapapi.search.route.RoutePlanSearch;
+import com.baidu.mapapi.search.route.TransitRouteResult;
+import com.baidu.mapapi.search.route.WalkingRouteResult;
 import com.txzh.walk.Bean.GroupMemberLocationBean;
 import com.txzh.walk.Listener.LocationListener.MyLocationListener;
 import com.txzh.walk.R;
+import com.txzh.walk.overlayutil.DrivingRouteOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +76,7 @@ public class MapFragment extends Fragment implements OnGetGeoCoderResultListener
     public RoutePlanSearch mSearch = null;    // 搜索模块，也可去掉地图模块独立使用
     public GeoCoder mCoder = null;                 //把经纬度坐标转化为城市地址
 
+    public OverlayOptions overlayOptions = null;        //地图上的覆盖物
 
 
     public static LocationClient mLocationClient = null;//定义LocationClient
@@ -160,7 +171,7 @@ public class MapFragment extends Fragment implements OnGetGeoCoderResultListener
     public void addInfosOverlay(List<GroupMemberLocationBean> groupMemberLocationBeanList)	{
         mBaiduMap.clear();
         latLng = null;
-        OverlayOptions overlayOptions = null;
+        overlayOptions = null;
         Marker marker = null;
         for (GroupMemberLocationBean groupMemberLocationBean:groupMemberLocationBeanList){
             // 位置
@@ -234,6 +245,8 @@ public class MapFragment extends Fragment implements OnGetGeoCoderResultListener
             @Override
             public void onClick(View v) {
                 getRoute(groupMemberLocationBean);
+
+
             }
         });
 
@@ -255,18 +268,72 @@ public class MapFragment extends Fragment implements OnGetGeoCoderResultListener
     public void getRoute(GroupMemberLocationBean groupMemberLocationBean){
         LatLng latLngFrom = new LatLng(la,lo);
         LatLng latLngTo = new LatLng(Double.parseDouble(groupMemberLocationBean.getLatitude()), Double.parseDouble(groupMemberLocationBean.getLongitude()));
-        /*PlanNode stNode = PlanNode.withLocation(latLngFrom);
-        PlanNode enNode = PlanNode.withLocation(latLngTo);
-
-        mSearch.drivingSearch((new DrivingRoutePlanOption())
-                .from(stNode)
-                .to(enNode));
-*/
         mCoder.reverseGeoCode(new ReverseGeoCodeOption().location(latLngTo));
+
+        initPlan();        //规划路线
+        PlanNode startNode = PlanNode.withLocation(latLngFrom);
+        PlanNode endNode = PlanNode.withLocation(latLngTo);
+
+        mSearch.drivingSearch(new DrivingRoutePlanOption().from(startNode).to(endNode));            //驾车路线规划
 
     }
 
+    private void initPlan() {
+        mSearch = RoutePlanSearch.newInstance();
+        mSearch.setOnGetRoutePlanResultListener(new OnGetRoutePlanResultListener() {
+            @Override
+            public void onGetWalkingRouteResult(WalkingRouteResult walkingRouteResult) {
 
+            }
+
+            @Override
+            public void onGetTransitRouteResult(TransitRouteResult transitRouteResult) {
+
+            }
+
+            @Override
+            public void onGetMassTransitRouteResult(MassTransitRouteResult massTransitRouteResult) {
+
+            }
+
+            @Override
+            public void onGetDrivingRouteResult(DrivingRouteResult drivingRouteResult) {
+                if (drivingRouteResult == null || drivingRouteResult.error != SearchResult.ERRORNO.NO_ERROR) {
+                    Toast.makeText(context, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
+                }
+                if (drivingRouteResult.error == SearchResult.ERRORNO.AMBIGUOUS_ROURE_ADDR) {
+                    // 起终点或途经点地址有岐义，通过以下接口获取建议查询信息
+                    drivingRouteResult.getSuggestAddrInfo();
+                    return;
+                }
+                if (drivingRouteResult.error == SearchResult.ERRORNO.NO_ERROR) {
+                    if (drivingRouteResult.getRouteLines().size() >= 1) {
+//                        DrivingRouteLine route = drivingRouteResult.getRouteLines().get(0);
+                        DrivingRouteOverlay overlay = new DrivingRouteOverlay(mBaiduMap);
+    //                    overlayOptions = overlay;
+
+                        mBaiduMap.setOnMarkerClickListener(overlay);
+                        overlay.setData(drivingRouteResult.getRouteLines().get(0));
+                        overlay.addToMap();
+                        overlay.zoomToSpan();
+                    } else {
+                        Log.d("route result", "结果数<0");
+                        return;
+                    }
+                }
+            }
+
+            @Override
+            public void onGetIndoorRouteResult(IndoorRouteResult indoorRouteResult) {
+
+            }
+
+            @Override
+            public void onGetBikingRouteResult(BikingRouteResult bikingRouteResult) {
+
+            }
+        });
+    }
     ///以下两个方法是把经纬度转化为具体城市的坐标
 
     @Override

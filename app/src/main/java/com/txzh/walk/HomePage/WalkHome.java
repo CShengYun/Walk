@@ -69,10 +69,6 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
     private NetworkChangeReceiver networkChangeReceiver;//监听网络状态
     private Handler handler;
 
-    public static List<GroupInfoBean> manageGroupInfoBeanList = new ArrayList<GroupInfoBean>();                       //我管理群组信息列表
-    public static List<GroupInfoBean> addGroupInfoBeanList = new ArrayList<GroupInfoBean>();                       //我加入的组信息列表
-    public static boolean isObtainAllGroup=false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (getSupportActionBar() != null){
@@ -89,6 +85,17 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
         viewPager = (MyViewPager) findViewById(R.id.viewpager);
         viewPager.setScanScroll(false);                                                         //禁止页面滑动
         viewPager.setAdapter(fragmentAdapter);                                                  //滑动页面绑定适配器
+
+
+        Intent intent = getIntent();
+        int id = intent.getIntExtra("flag", 0);
+        if (id==1) {
+            //fragment的切换采用的是viewpage的形式,然后1是指底部第2个Fragment
+            viewPager.setCurrentItem(1);
+        }if (id==0) {
+            //fragment的切换采用的是viewpage的形式,然后1是指底部第2个Fragment
+            viewPager.setCurrentItem(0);
+        }
 
 
     }
@@ -133,7 +140,6 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
 
             case R.id.tv_group_walk_home:
                 viewPager.setCurrentItem(1);
-                obtainAllGroup(1);              //获取所有群组信息
                 break;
 
             case R.id.tv_news_walk_home:
@@ -145,76 +151,6 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
                 break;
         }
     }
-
-
-    //获取所有群组信息
-    public void obtainAllGroup(int userID){
-        OkHttpClient client = new OkHttpClient();
-
-        RequestBody formBody=new FormBody.Builder()
-                .add("userID",""+userID)
-                .build();
-
-        Request request = new Request.Builder()
-                .url(URL_obtainAllGroupId)
-                .post(formBody)
-                .build();
-
-        Response response;
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.i("++++","我请求的是获取所有群组：请求失败");
-            }
-
-            @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                if(!response.isSuccessful()){
-                    return;
-                }
-
-
-                manageGroupInfoBeanList.clear();
-                addGroupInfoBeanList.clear();
-
-                try {
-                    JSONObject jsonObject = new JSONObject(response.body().string());
-                    JSONArray jsonArray = jsonObject.getJSONArray("data");
-                    isObtainAllGroup = Boolean.valueOf(jsonObject.getString("success"));
-                    Log.i("----","我是判断success："+isObtainAllGroup+jsonObject.getString("success"));
-                    for(int i=0;i<jsonArray.length();i++) {
-                        JSONObject object = (JSONObject) jsonArray.get(i);
-                        GroupInfoBean groupInfoBean = new GroupInfoBean();
-
-                        String groupId = object.getString("groupID");
-                        String groupName = object.getString("groupName");
-                        String groupHostID = object.getString("groupHostID");
-                        String status = object.getString("status");
-
-                        groupInfoBean.setGroupId(object.getString("groupID"));
-                        groupInfoBean.setGroupName(object.getString("groupName"));
-                        groupInfoBean.setGroupHostID(object.getString("groupHostID"));
-                        groupInfoBean.setStatus(object.getString("status"));
-
-                        if(object.getString("groupID").equals(object.getString("groupHostID"))){
-                            manageGroupInfoBeanList.add(groupInfoBean);
-                        }else {
-                            addGroupInfoBeanList.add(groupInfoBean);
-                        }
-                        Log.i("++++","我是JSONArray："+"群ID:"+groupId+"-------"+groupName+"-------"+"群主id："+groupHostID+"-------"+status);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
-
-    }
-
-
-
 
     //注册NetworkChanagerReceiver广播
     protected void onResume() {
@@ -235,8 +171,6 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
         System.out.print("销毁");
         super.onPause();
     }
-
-
 
 
 //6.0之后要动态获取权限，重要！！！
