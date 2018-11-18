@@ -1,14 +1,9 @@
 package com.txzh.walk.Group;
 
 import android.content.Intent;
-import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -17,9 +12,7 @@ import android.widget.Toast;
 import com.txzh.walk.Adapter.GroupMemberInfoAdapter;
 import com.txzh.walk.Bean.GroupMemberInfoBean;
 import com.txzh.walk.Bean.GroupMemberLocationBean;
-import com.txzh.walk.Fragment.GroupFragment;
 import com.txzh.walk.HomePage.WalkHome;
-import com.txzh.walk.MainActivity;
 import com.txzh.walk.R;
 
 import org.json.JSONArray;
@@ -111,7 +104,8 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
                 GroupMembers.this.finish();
                 break;
 
-            case R.id.tv_add_group_member:                                     //添加群
+            case R.id.tv_add_group_member:                                     //添加群成员
+
                 break;
 
             case R.id.tv_location_group_member:                                 //群员位置
@@ -121,7 +115,6 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
             case R.id.tv_group_describle_group_member:                            //群简介
                 obtainGroupDescrible();
                 break;
-
         }
     }
 

@@ -7,51 +7,25 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
-import android.os.Environment;
-import android.os.Handler;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.txzh.walk.Adapter.FragmentAdapter;
-import com.txzh.walk.Bean.GroupInfoBean;
 import com.txzh.walk.BroadcastReceiver.NetworkChangeReceiver;
 import com.txzh.walk.Fragment.GroupFragment;
 import com.txzh.walk.Fragment.MapFragment;
 import com.txzh.walk.Fragment.NewsFragment;
 import com.txzh.walk.Fragment.PersonalFragment;
-import com.txzh.walk.Group.CreateGroup;
-import com.txzh.walk.MainActivity;
 import com.txzh.walk.MyViewPager.MyViewPager;
 import com.txzh.walk.R;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-
-import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainAllGroupId;
 
 public class WalkHome extends AppCompatActivity implements View.OnClickListener {
 
@@ -67,7 +41,7 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
     private TextView tv_map_walk_home,tv_group_walk_home,tv_news_walk_home,tv_personal_walk_home;       //地图、群组、消息、我的主界面屏幕下方的四个TextView
 
     private NetworkChangeReceiver networkChangeReceiver;//监听网络状态
-    private Handler handler;
+    public static boolean openGroup = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +66,7 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
         if (id==1) {
             //fragment的切换采用的是viewpage的形式,然后1是指底部第2个Fragment
             viewPager.setCurrentItem(1);
+            openGroup = true;
         }if (id==0) {
             //fragment的切换采用的是viewpage的形式,然后1是指底部第2个Fragment
             viewPager.setCurrentItem(0);
@@ -105,7 +80,6 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
     protected void init(){
 
         fragments = new ArrayList<>();
-        handler = new Handler();
 
         tv_map_walk_home = (TextView)findViewById(R.id.tv_map_walk_home);
         tv_group_walk_home = (TextView)findViewById(R.id.tv_group_walk_home);

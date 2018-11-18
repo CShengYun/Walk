@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.txzh.walk.HomePage.WalkHome;
 import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.R;
 import com.txzh.walk.ToolClass.FileProviderUtils;
@@ -62,6 +63,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     private String groupNickName;     //保存群昵称
     private String groupSynopsis;     //保存群简介
     private Handler handler;
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +100,10 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.ib_Return:
-                finish();
+                intent = new Intent(CreateGroup.this, WalkHome.class);
+                intent.putExtra("flag",1);
+                startActivity(intent);
+                CreateGroup.this.finish();
                 break;
             case R.id.btn_groupEstablish:
                 groupNickName = et_groupNickName.getText().toString().trim();

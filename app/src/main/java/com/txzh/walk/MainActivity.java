@@ -47,6 +47,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText et_accounts, et_password;
     private String accounts, password;
     private Handler handler;
+    public static String userID = String.valueOf(Tools.getUserID());
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

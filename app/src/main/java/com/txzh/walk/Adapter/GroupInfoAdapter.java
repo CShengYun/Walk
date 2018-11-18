@@ -5,12 +5,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.txzh.walk.Bean.GroupInfoBean;
 import com.txzh.walk.R;
 import com.txzh.walk.ToolClass.Tools;
+import com.txzh.walk.customComponents.CircleImageView;
 
 import java.util.List;
 
@@ -42,20 +42,20 @@ public class GroupInfoAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
         GroupInfoBean groupInfoBean = groupInfoBeanList.get(position);
-
         if(convertView==null){
             convertView = View.inflate(context, R.layout.adapter_group_info,null);
 
             viewHolder = new ViewHolder();
-            viewHolder.group_name = (TextView)convertView.findViewById(R.id.group_name_item);
-            viewHolder.group_headPath = (ImageView)convertView.findViewById(R.id.group_pic_item);
+            viewHolder.group_name = convertView.findViewById(R.id.group_name_item);
+            viewHolder.group_headPath = convertView.findViewById(R.id.group_pic_item);
             convertView.setTag(viewHolder);
         }else {
             viewHolder = (ViewHolder)convertView.getTag();
         }
 
+        viewHolder.group_headPath.setEnabled(false);
+        viewHolder.group_headPath.setImageUrl(groupInfoBean.getGroupPic(),R.drawable.headportrait,null);
         viewHolder.group_name.setText(groupInfoBean.getGroupName());
 
         Log.i("****","用户id:"+ Tools.getUserID()+"---"+"群主id："+groupInfoBean.groupHostID+"---"+"群昵称："+groupInfoBean.getGroupName());
@@ -65,6 +65,6 @@ public class GroupInfoAdapter extends BaseAdapter {
 
     class ViewHolder{
         TextView group_name;
-        ImageView group_headPath;
+        CircleImageView group_headPath;
     }
 }

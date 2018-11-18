@@ -2,10 +2,7 @@ package com.txzh.walk.Fragment;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,15 +15,12 @@ import android.widget.Toast;
 
 import com.txzh.walk.Adapter.GroupInfoAdapter;
 import com.txzh.walk.Bean.GroupInfoBean;
-import com.txzh.walk.Bean.GroupMemberInfoBean;
 import com.txzh.walk.Group.CreateGroup;
 import com.txzh.walk.Group.GroupMembers;
 import com.txzh.walk.Group.searchGroup;
 import com.txzh.walk.R;
-import com.txzh.walk.ToolClass.Tools;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -42,8 +36,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static com.txzh.walk.HomePage.WalkHome.context;
+import static com.txzh.walk.HomePage.WalkHome.openGroup;
 import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainAllGroupId;
-import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainGroupMember;
 
 public class GroupFragment extends Fragment implements View.OnClickListener {
     protected View view=null;
@@ -57,7 +51,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
     public static List<GroupInfoBean> manageGroupInfoBeanList = new ArrayList<GroupInfoBean>();                       //我管理群组信息列表
     public static List<GroupInfoBean> addGroupInfoBeanList = new ArrayList<GroupInfoBean>();                       //我加入的组信息列表
     public static boolean isObtainAllGroup=false;
-
+    public static int jsonArrayLength = 0;
 
     public static boolean is_onclik_manage_group = true;                    //判断展开、关闭我管理的的群组
     public static boolean is_onclik_add_group = true;                       //判断展开、关闭我加入的的群组
@@ -69,6 +63,19 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+    }
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        Log.i("-------","我是长度111111111："+manageGroupInfoBeanList.size()+"==="+jsonArrayLength);
+        if(openGroup && isObtainAllGroup==true && manageGroupInfoBeanList.size()==jsonArrayLength){
+            Log.i("-------22222222222222","我是长度："+manageGroupInfoBeanList.size());
+            is_onclik_manage_group = true;
+            openCloseManageGroup();                             //打开关闭我管理的群组
+            manageGroupAdapter = new GroupInfoAdapter(manageGroupInfoBeanList,context);
+            group_lv_manage_group.setAdapter(manageGroupAdapter);
+            openGroup = false;
+        }
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -244,8 +251,9 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
                 try {
                     JSONObject jsonObject = new JSONObject(response.body().string());
                     JSONArray jsonArray = jsonObject.getJSONArray("data");
+                    jsonArrayLength = jsonArray.length();
                     isObtainAllGroup = Boolean.valueOf(jsonObject.getString("success"));
-                    Log.i("----","我是判断success111111111111111："+isObtainAllGroup+jsonObject.getString("success"));
+                    Log.i("----","我是判断success111111111111111："+jsonArrayLength+isObtainAllGroup+jsonObject.getString("success"));
                     for(int i=0;i<jsonArray.length();i++) {
                         JSONObject object = (JSONObject) jsonArray.get(i);
                         GroupInfoBean groupInfoBean = new GroupInfoBean();
@@ -259,6 +267,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
                         groupInfoBean.setGroupName(object.getString("groupName"));
                         groupInfoBean.setGroupHostID(object.getString("groupHostID"));
                         groupInfoBean.setStatus(object.getString("status"));
+                        groupInfoBean.setGroupPic(object.getString("groupPic"));
 
                         if((userID).equals(object.getString("groupHostID"))){
                             manageGroupInfoBeanList.add(groupInfoBean);

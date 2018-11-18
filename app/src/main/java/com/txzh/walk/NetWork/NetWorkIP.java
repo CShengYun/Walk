@@ -14,4 +14,7 @@ public class NetWorkIP {
     public static String URL_createGroup = URL+"/createGroup";
     public static String URL_searchGroup = URL+"/searchGroup";
     public static String URL_applyAddGroup = URL+"/applyAddGroup";
+    public static String URL_obtainGroupInfo = URL+"/obtainGroupInfo";
+    public static String URL_singOutGroup = URL+"/singOutGroup";
+    public static String URL_disbandGroup = URL+"/disbandGroup";
 }

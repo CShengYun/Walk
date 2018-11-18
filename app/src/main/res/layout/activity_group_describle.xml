@@ -165,7 +165,8 @@
                     android:gravity="top"
                     android:inputType="textMultiLine"
                     android:minLines="8"
-                    android:maxLines="10" />
+                    android:maxLines="10"
+                    android:background="@drawable/group_edittextsharp"/>
 
         </LinearLayout>
 
@@ -223,7 +224,8 @@
                 android:gravity="top"
                 android:inputType="textMultiLine"
                 android:minLines="8"
-                android:maxLines="10" />
+                android:maxLines="10"
+                android:background="@drawable/group_edittextsharp"/>
 
         </LinearLayout>
 

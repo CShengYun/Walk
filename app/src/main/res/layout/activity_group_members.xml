@@ -111,13 +111,13 @@
         <TextView
             android:id="@+id/tv_group_describle_group_member"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="match_parent"
-            android:gravity="center"
             android:layout_marginLeft="5dp"
+            android:layout_weight="1"
             android:background="@color/Blue"
+            android:gravity="center"
             android:text="群简介"
-            android:textSize="20dp"/>
+            android:textSize="20dp" />
 
 
     </LinearLayout>
