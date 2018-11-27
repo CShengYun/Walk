@@ -1,6 +1,7 @@
 package com.txzh.walk;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
@@ -16,7 +17,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hyphenate.EMCallBack;
+import com.hyphenate.chat.EMChatManager;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMOptions;
+import com.hyphenate.exceptions.HyphenateException;
 import com.txzh.walk.HomePage.WalkHome;
+import com.txzh.walk.Listener.ChatListener.MyConnectionChatListener;
 import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.Register.RetrievePassword;
 import com.txzh.walk.ToolClass.Tools;
@@ -48,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String accounts, password;
     private Handler handler;
     public static String userID = String.valueOf(Tools.getUserID());
-
+    public static Context mainContent;
 
 
 
@@ -57,9 +64,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);  //去掉标题栏
         setContentView(R.layout.activity_main);
+        mainContent = getApplicationContext();
+        initHX();           //环信初始化
         showContacts();
         init();
-
     }
 
     public void init() {
@@ -85,8 +93,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         id = view.getId();
         switch (id) {
             case R.id.btn_login:
-                intent = new Intent(MainActivity.this, WalkHome.class);
-                startActivity(intent);
                 accounts = et_accounts.getText().toString().trim();
                 password = et_password.getText().toString().trim();
                 if (judAccounts()) {
@@ -181,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Tools.setHeadPhoto(object.getString("headPath"));
                                 Tools.setUserID(object.getInt("userID"));
                             }
+                            userID = String.valueOf(Tools.getUserID());
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -197,6 +204,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Log.i("bbbb", "我是success：" + finalSuccess);
 
                                 if ("true".equals(finalSuccess)) {
+
+                                    EMClient.getInstance().login(accounts,password,new EMCallBack() {//回调
+                                        @Override
+                                        public void onSuccess() {
+                                            EMClient.getInstance().groupManager().loadAllGroups();
+                                            EMClient.getInstance().chatManager().loadAllConversations();
+
+                                            //注册一个监听连接状态的listener
+                                            EMClient.getInstance().addConnectionListener(new MyConnectionChatListener());
+
+                                            Log.d("hhhh", "登录聊天服务器成功！");
+                                        }
+
+                                        @Override
+                                        public void onProgress(int progress, String status) {
+
+                                        }
+
+                                        @Override
+                                        public void onError(int code, String message) {
+                                            Log.d("hhhhh", "登录聊天服务器失败！");
+                                        }
+                                    });
+
+
                                     Toast.makeText(MainActivity.this, "" + finalSuccess, Toast.LENGTH_SHORT).show();
                                     intent = new Intent(MainActivity.this, WalkHome.class);
                                     startActivity(intent);
@@ -238,5 +270,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    //环信初始化
+    public void initHX(){
+        EMOptions options = new EMOptions();
+        // 默认添加好友时，是不需要验证的，改成需要验证
+        options.setAcceptInvitationAlways(true);
+        // 是否自动将消息附件上传到环信服务器，默认为True是使用环信服务器上传下载，如果设为 false，需要开发者自己处理附件消息的上传和下载
+        options.setAutoTransferMessageAttachments(true);
+        // 是否自动下载附件类消息的缩略图等，默认为 true 这里和上边这个参数相关联
+        options.setAutoDownloadThumbnail(true);
+
+        //初始化
+        EMClient.getInstance().init(getApplicationContext(), options);
+        //在做打包混淆时，关闭debug模式，避免消耗不必要的资源
+        EMClient.getInstance().setDebugMode(true);
+
+    }
 
 }

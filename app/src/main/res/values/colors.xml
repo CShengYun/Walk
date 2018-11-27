@@ -8,4 +8,5 @@
     <color name="Blue">#5CACEE</color>
     <color name="White">#FFFFFF</color>
     <color name="grays">#EAEAEA</color>
+    <color name="top_bar_normal_bg">#00acff</color>
 </resources>

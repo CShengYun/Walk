@@ -33,10 +33,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.txzh.walk.HomePage.WalkHome.context;
 import static com.txzh.walk.MainActivity.userID;
 import static com.txzh.walk.NetWork.NetWorkIP.URL_disbandGroup;
-import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainGroupInfo;
 import static com.txzh.walk.NetWork.NetWorkIP.URL_singOutGroup;
 
 public class GroupDescrible extends AppCompatActivity implements View.OnClickListener {
@@ -83,16 +81,18 @@ public class GroupDescrible extends AppCompatActivity implements View.OnClickLis
         group_notice_et_group_describle = (EditText)findViewById(R.id.group_notice_et_group_describle);
         group_describle_et_group_describle = (EditText)findViewById(R.id.gorup_describle_et_group_describle);
 
+
         if(userID.equals(groupHostID)){
             group_notice_tv_group_describle.setVisibility(View.GONE);
             group_describle_tv_group_describle.setVisibility(View.GONE);
             disband_group_describle.setVisibility(View.VISIBLE);
+            disband_group_describle.setText("解散群");
             out_group_describle.setVisibility(View.GONE);
-
         }else {
             group_notice_tv_group_describle.setVisibility(View.GONE);
             group_describle_tv_group_describle.setVisibility(View.GONE);
             out_group_describle.setVisibility(View.VISIBLE);
+            out_group_describle.setText("退出群");
             disband_group_describle.setVisibility(View.GONE);
         }
 

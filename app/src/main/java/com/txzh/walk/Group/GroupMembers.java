@@ -2,9 +2,12 @@ package com.txzh.walk.Group;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,7 +46,7 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
     private ListView listview_group_member;                              //群成员ListVew
     private GroupMemberInfoAdapter groupMemberInfoAdapter;                //群成员适配器
 
-    private Bundle bundle;                                                  //接收传过来的数据
+    private Bundle bundleReceive,bundleSend = new Bundle();                                                  //接收传过来的数据
     private String groupName,groupID,groupHostID;                                      //保存传过来的数据
     private String isObationGroupMemberLocation;
 
@@ -55,7 +58,7 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
     private Intent intent;                                                      //开启群成员acticity
     private int groupMemberCount = 0,groupManCount = 0,groupWomanCount = 0;           //群成员、男、女数量
     private String groupDescrible = "",groupAnnouncement = "";
-
+    protected Handler handler;
     public GroupMembers(){
 
     }
@@ -70,6 +73,7 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_group_members);
         requestGroupMember();                                                       //发送请求获取群组成员
         init();                                                                     //实例化对象
+        Log.i("8888","我是移除群成员回调结果");
     }
 
     //实例化对象、接收数据
@@ -89,8 +93,41 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
         group_name_group_member.setText(groupName);                            //设置群组昵称
 
         listview_group_member = (ListView)findViewById(R.id.listview_group_member);
-        groupMemberInfoAdapter = new GroupMemberInfoAdapter(groupMemberInfoBeanList,getApplicationContext());
-        listview_group_member.setAdapter(groupMemberInfoAdapter);
+        handler = new Handler(){
+            public void handleMessage(Message msg) {
+                if(msg.what==11){
+                    groupMemberInfoAdapter = new GroupMemberInfoAdapter(groupMemberInfoBeanList,getApplicationContext());
+                    listview_group_member.setAdapter(groupMemberInfoAdapter);
+
+                }
+            }
+        };
+        listview_group_member.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(bundleSend!=null){
+                    bundleSend.clear();
+                }
+
+                bundleSend.putString("userID",groupMemberInfoBeanList.get(position).getGroupMemberID());
+                intent = new Intent(GroupMembers.this,GroupSingleMember.class);
+                intent.putExtra("userIdInfo",bundleSend);
+                startActivityForResult(intent,1);
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(data!=null){
+            if(requestCode==1){
+                if(resultCode==1){
+
+                    Log.i("88888","返回数据"+data.getSerializableExtra("userInfo"));
+                }
+            }
+        }
     }
 
     @Override
@@ -98,9 +135,6 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
         int id = v.getId();
         switch (id){
             case R.id.tv_back_group_member:                                     //返回
-                intent = new Intent(GroupMembers.this, WalkHome.class);
-                intent.putExtra("flag",1);
-                startActivity(intent);
                 GroupMembers.this.finish();
                 break;
 
@@ -118,13 +152,14 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
 //发送请求，请求群成员。
     public void requestGroupMember(){
 
-        bundle=getIntent().getBundleExtra("groupInfo");
-        groupName = bundle.getString("groupName");
-        groupID = bundle.getString("groupID");
-        groupHostID = bundle.getString("groupHostID");
+        bundleReceive=getIntent().getBundleExtra("groupInfo");
+        groupName = bundleReceive.getString("groupName");
+        groupID = bundleReceive.getString("groupID");
+        groupHostID = bundleReceive.getString("groupHostID");
         OkHttpClient client = new OkHttpClient();
 
                 FormBody formBody = new FormBody.Builder()
@@ -163,25 +198,32 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
                 GroupMemberInfoBean groupMemberInfoBean = new GroupMemberInfoBean();
 
                 String userID = object.getString("userID");
-                //                    String headPath = object.getString("headPath");
+                String headPath = object.getString("headPath");
                 String nickName = object.getString("nickName");
                 String sex = object.getString("sex");
-                //                    String status = object.getString("status");
+                String status = object.getString("status");
 
                 groupMemberInfoBean.setGroupMemberID(object.getString("userID"));
-                //                    groupMemberInfoBean.setGroupMemberHeadPath(object.getString("headPath"));
+                groupMemberInfoBean.setGroupMemberHeadPath(object.getString("headPath"));
+                groupMemberInfoBean.setGroupMemberUserName(object.getString("userName"));
                 groupMemberInfoBean.setGroupMemberNiceName(object.getString("nickName"));
                 groupMemberInfoBean.setGroupMemberSex(object.getString("sex"));
-                //                    groupMemberInfoBean.setGroupMemberStatue(object.getString("status"));
+                groupMemberInfoBean.setGroupMemberStatue(object.getString("status"));
 
                 groupMemberInfoBeanList.add(groupMemberInfoBean);
+
+                Message msg = new Message();
+                msg.what = 11;
+                handler.sendMessage(msg);
+
+
                 groupMemberCount++;
                 if(object.getString("sex").equals("男")){
                     groupManCount++;
                 }else if(object.getString("sex").equals("女")){
                     groupWomanCount++;
                 }
-                Log.i("******","我是管理群的群成员："+userID+"----"+nickName+"----"+sex+"----"+isObtainGroupMember);
+                Log.i("******","我是管理群的群成员："+userID+"----"+nickName+"----"+sex+"----"+isObtainGroupMember+jsonObject.toString());
             }
             if(isObtainGroupMember.equals("true")){
 
@@ -310,17 +352,19 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
                         groupAnnouncement = object.getString("groupAnnouncement");
                     }
                     if(isObtainGroupDescrible){
-                        bundle.clear();
-                        bundle.putString("groupMemberCount",groupMemberCount+"");
-                        bundle.putString("groupManCount",groupManCount+"");
-                        bundle.putString("groupWomanCount",groupWomanCount+"");
-                        bundle.putString("groupName",groupName);
-                        bundle.putString("groupID",groupID);
-                        bundle.putString("groupHostID",groupHostID);
-                        bundle.putString("groupDescrible",groupDescrible);
-                        bundle.putString("groupAnnouncement",groupAnnouncement);
+                        if(bundleSend!=null){
+                            bundleSend.clear();
+                        }
+                        bundleSend.putString("groupMemberCount",groupMemberCount+"");
+                        bundleSend.putString("groupManCount",groupManCount+"");
+                        bundleSend.putString("groupWomanCount",groupWomanCount+"");
+                        bundleSend.putString("groupName",groupName);
+                        bundleSend.putString("groupID",groupID);
+                        bundleSend.putString("groupHostID",groupHostID);
+                        bundleSend.putString("groupDescrible",groupDescrible);
+                        bundleSend.putString("groupAnnouncement",groupAnnouncement);
                         intent = new Intent(GroupMembers.this,GroupDescrible.class);
-                        intent.putExtra("groupDescrible",bundle);
+                        intent.putExtra("groupDescrible",bundleSend);
                         startActivity(intent);
                     }else if(!isObtainGroupDescrible) {
                         Toast.makeText(context,"服务器繁忙,获取失败，请重新点击加载！",Toast.LENGTH_SHORT).show();

@@ -2,6 +2,9 @@ package com.txzh.walk.Bean;
 
 public class GroupMemberInfoBean {
     String groupMemberID;
+    String groupMemberUserName;
+
+
     String groupMemberNiceName;
     String groupMemberPhone;
     String groupMemberHeadPath;
@@ -13,6 +16,14 @@ public class GroupMemberInfoBean {
 
     public GroupMemberInfoBean(){
 
+    }
+
+    public String getGroupMemberUserName() {
+        return groupMemberUserName;
+    }
+
+    public void setGroupMemberUserName(String groupMemberUserName) {
+        this.groupMemberUserName = groupMemberUserName;
     }
 
     public String getGroupMemberID() {

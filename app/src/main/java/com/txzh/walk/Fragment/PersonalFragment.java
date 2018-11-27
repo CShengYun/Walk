@@ -15,6 +15,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.hyphenate.EMCallBack;
+import com.hyphenate.chat.EMClient;
 import com.txzh.walk.Function.personalData;
 import com.txzh.walk.MainActivity;
 import com.txzh.walk.R;
@@ -88,6 +90,28 @@ public class PersonalFragment extends Fragment implements View.OnClickListener {
                 dialog.setClickListener(new BottomAnimDialog.BottonAnimDialogListener() {
                     @Override
                     public void onItem1Listener() {
+
+                        EMClient.getInstance().logout(true, new EMCallBack() {
+
+                            @Override
+                            public void onSuccess() {
+                                // TODO Auto-generated method stub
+                                Log.i("hhhhhh","环信账号退出成功！");
+                            }
+
+                            @Override
+                            public void onProgress(int progress, String status) {
+                                // TODO Auto-generated method stub
+
+                            }
+
+                            @Override
+                            public void onError(int code, String message) {
+                                // TODO Auto-generated method stub
+                                Log.i("hhhhhh","环信账号退出失败！");
+                            }
+                        });
+
                         //返回首页
                         Intent intent1 = new Intent(getActivity(), MainActivity.class);
                         startActivity(intent1);

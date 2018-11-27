@@ -1,6 +1,25 @@
 package com.txzh.walk.Bean;
 
 public class GroupInfoBean {
+
+
+    public String  groupId;
+    public String groupName;
+    public String groupHostID;
+    public String groupPic;
+    public String status;
+    public String groupHXID;
+
+
+    public String getGroupHXID() {
+        return groupHXID;
+    }
+
+    public void setGroupHXID(String groupHXID) {
+        this.groupHXID = groupHXID;
+    }
+
+
     public String getGroupId() {
         return groupId;
     }
@@ -41,11 +60,6 @@ public class GroupInfoBean {
         this.status = status;
     }
 
-    public String  groupId;
-    public String groupName;
-    public String groupHostID;
-    public String groupPic;
-    public String status;
 }
 
 

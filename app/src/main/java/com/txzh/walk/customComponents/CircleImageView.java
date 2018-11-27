@@ -91,6 +91,7 @@ public class CircleImageView extends SmartImageView {
             case MotionEvent.ACTION_DOWN:
                 this.setColorFilter(0x33000000);
                 //重写触摸事件的方法,当按钮被点击的时候
+
                 mOnClickListener.onClick();
                 return true;
             case MotionEvent.ACTION_UP:

@@ -17,4 +17,8 @@ public class NetWorkIP {
     public static String URL_obtainGroupInfo = URL+"/obtainGroupInfo";
     public static String URL_singOutGroup = URL+"/singOutGroup";
     public static String URL_disbandGroup = URL+"/disbandGroup";
+    public static String URL_obtainGroupMemberDetaileData = URL+"/obtainGroupMemberDetaileData";
+    public static String URL_deleteGroupMember = URL+"/deleteGroupMember";
+    public static String URL_obtainOneGroupId = URL+"/obtainOneGroupId";
+    public static String URL_attainUserInforByHX = URL+"/attainUserInforByHX";
 }

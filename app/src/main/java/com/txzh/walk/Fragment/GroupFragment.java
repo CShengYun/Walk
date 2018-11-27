@@ -3,6 +3,8 @@ package com.txzh.walk.Fragment;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import android.widget.Toast;
 
 import com.txzh.walk.Adapter.GroupInfoAdapter;
 import com.txzh.walk.Bean.GroupInfoBean;
+import com.txzh.walk.Chat.ChatGroup;
 import com.txzh.walk.Group.CreateGroup;
 import com.txzh.walk.Group.GroupMembers;
 import com.txzh.walk.Group.searchGroup;
@@ -37,6 +40,7 @@ import okhttp3.Response;
 
 import static com.txzh.walk.HomePage.WalkHome.context;
 import static com.txzh.walk.HomePage.WalkHome.openGroup;
+import static com.txzh.walk.MainActivity.userID;
 import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainAllGroupId;
 
 public class GroupFragment extends Fragment implements View.OnClickListener {
@@ -52,6 +56,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
     public static List<GroupInfoBean> addGroupInfoBeanList = new ArrayList<GroupInfoBean>();                       //我加入的组信息列表
     public static boolean isObtainAllGroup=false;
     public static int jsonArrayLength = 0;
+    protected Handler handler;
 
     public static boolean is_onclik_manage_group = true;                    //判断展开、关闭我管理的的群组
     public static boolean is_onclik_add_group = true;                       //判断展开、关闭我加入的的群组
@@ -66,22 +71,28 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
     }
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        handler = new Handler(){
+          public void handleMessage(Message msg) {
+                if(msg.what==1){
+                    jsonArrayLength = (Integer)msg.obj;
+                    Log.i("888888","我是长度："+manageGroupInfoBeanList.size()+addGroupInfoBeanList.size()+"====="+jsonArrayLength+isObtainAllGroup);
+                    if(openGroup && isObtainAllGroup==true && (manageGroupInfoBeanList.size()+addGroupInfoBeanList.size())==jsonArrayLength){
+                        is_onclik_manage_group = true;
+                        openCloseManageGroup();                             //打开关闭我管理的群组
+                        manageGroupAdapter = new GroupInfoAdapter(manageGroupInfoBeanList,context);
+                        group_lv_manage_group.setAdapter(manageGroupAdapter);
+                        openGroup = false;
+                    }
+                }
+            }
+        };
 
-        Log.i("-------","我是长度111111111："+manageGroupInfoBeanList.size()+"==="+jsonArrayLength);
-        if(openGroup && isObtainAllGroup==true && manageGroupInfoBeanList.size()==jsonArrayLength){
-            Log.i("-------22222222222222","我是长度："+manageGroupInfoBeanList.size());
-            is_onclik_manage_group = true;
-            openCloseManageGroup();                             //打开关闭我管理的群组
-            manageGroupAdapter = new GroupInfoAdapter(manageGroupInfoBeanList,context);
-            group_lv_manage_group.setAdapter(manageGroupAdapter);
-            openGroup = false;
-        }
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         System.out.println("我滑动了第二个界面22");
         view = inflater.inflate(R.layout.fragment_group, container, false);
-        obtainAllGroup(1+"");              //获取所有群组信息
+        obtainAllGroup(userID);              //获取所有群组信息
         init();             //实例化和监听控件
         GroupListListener();
         return view;
@@ -191,11 +202,14 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
         group_lv_manage_group.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, final long id) {
-                bundle.clear();
+                if(bundle!=null){
+                    bundle.clear();
+                }
                 bundle.putString("groupName",manageGroupInfoBeanList.get(position).getGroupName());
                 bundle.putString("groupID",manageGroupInfoBeanList.get(position).getGroupId());
+                bundle.putString("groupHXID",manageGroupInfoBeanList.get(position).getGroupHXID());
                 bundle.putString("groupHostID", manageGroupInfoBeanList.get(position).getGroupHostID());
-                intent = new Intent(context,GroupMembers.class);
+                intent = new Intent(context,ChatGroup.class);
                 intent.putExtra("groupInfo",bundle);
                 startActivity(intent);
             }
@@ -204,12 +218,14 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
         group_lv_add_group.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                bundle.clear();
+                if(bundle!=null){
+                    bundle.clear();
+                }
                 bundle.putString("groupName",addGroupInfoBeanList.get(position).getGroupName());
                 bundle.putString("groupID",addGroupInfoBeanList.get(position).getGroupId());
+                bundle.putString("groupHXID",addGroupInfoBeanList.get(position).getGroupHXID());
                 bundle.putString("groupHostID", addGroupInfoBeanList.get(position).getGroupHostID());
-
-                intent = new Intent(context,GroupMembers.class);
+                intent = new Intent(context,ChatGroup.class);
                 intent.putExtra("groupInfo",bundle);
                 startActivity(intent);
 
@@ -253,17 +269,18 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
                     JSONArray jsonArray = jsonObject.getJSONArray("data");
                     jsonArrayLength = jsonArray.length();
                     isObtainAllGroup = Boolean.valueOf(jsonObject.getString("success"));
-                    Log.i("----","我是判断success111111111111111："+jsonArrayLength+isObtainAllGroup+jsonObject.getString("success"));
                     for(int i=0;i<jsonArray.length();i++) {
                         JSONObject object = (JSONObject) jsonArray.get(i);
                         GroupInfoBean groupInfoBean = new GroupInfoBean();
 
                         String groupId = object.getString("groupID");
+                        String groupHXID = object.getString("groupHXID");
                         String groupName = object.getString("groupName");
                         String groupHostID = object.getString("groupHostID");
                         String status = object.getString("status");
 
                         groupInfoBean.setGroupId(object.getString("groupID"));
+                        groupInfoBean.setGroupHXID(object.getString("groupHXID"));
                         groupInfoBean.setGroupName(object.getString("groupName"));
                         groupInfoBean.setGroupHostID(object.getString("groupHostID"));
                         groupInfoBean.setStatus(object.getString("status"));
@@ -274,8 +291,14 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
                         }else {
                             addGroupInfoBeanList.add(groupInfoBean);
                         }
-                        Log.i("++++","我是JSONArray："+"群ID:"+groupId+"-------"+groupName+"-------"+"群主id："+groupHostID+"-------"+status);
+                        Log.i("++++","我是JSONArray："+"群ID:"+groupId+"-------"+groupName+"-------"+"群主id："+groupHostID+"---环信ID:"+groupHXID+"----"+status);
                     }
+                    Message msg = handler.obtainMessage();
+                    msg.what = 1;
+                    msg.obj = jsonArrayLength;
+                    handler.sendMessage(msg);
+                    Log.i("----","我是判断success3333333333333："+jsonArrayLength+isObtainAllGroup+jsonObject.getString("success"));
+
 
                 } catch (Exception e) {
                     e.printStackTrace();

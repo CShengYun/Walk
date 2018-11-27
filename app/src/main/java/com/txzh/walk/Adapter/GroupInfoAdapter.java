@@ -58,7 +58,7 @@ public class GroupInfoAdapter extends BaseAdapter {
         viewHolder.group_headPath.setImageUrl(groupInfoBean.getGroupPic(),R.drawable.headportrait,null);
         viewHolder.group_name.setText(groupInfoBean.getGroupName());
 
-        Log.i("****","用户id:"+ Tools.getUserID()+"---"+"群主id："+groupInfoBean.groupHostID+"---"+"群昵称："+groupInfoBean.getGroupName());
+    //    Log.i("****","用户id:"+ Tools.getUserID()+"---"+"群主id："+groupInfoBean.groupHostID+"---"+"群昵称："+groupInfoBean.getGroupName());
 
         return convertView;
     }

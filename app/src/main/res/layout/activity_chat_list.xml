@@ -1,0 +1,57 @@
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/group_linear"
+        android:layout_alignParentTop="true"
+        app:layout_heightPercent="8%"
+        app:layout_widthPercent="100%"
+        android:background="@color/top_bar_normal_bg"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/back_chat_list"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:background="@drawable/ease_mm_title_back"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="6"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="会话列表"
+            android:textSize="20dp"
+            android:textColor="@color/White"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_below="@+id/group_linear"
+        android:layout_marginTop="5dp"
+        app:layout_widthPercent="100%"
+        app:layout_heightPercent="92%"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/list"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </LinearLayout>
+
+</android.support.percent.PercentRelativeLayout>

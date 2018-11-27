@@ -10,6 +10,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.exceptions.HyphenateException;
 import com.txzh.walk.MainActivity;
 import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.R;
@@ -163,6 +165,16 @@ public class RegisteredUI extends AppCompatActivity implements View.OnClickListe
                                 //Toast.makeText(RetrievePassword.this, ""+b, Toast.LENGTH_SHORT).show();
 
                                     if("true".equals(finalSuccess)){
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    EMClient.getInstance().createAccount(accounts,password);
+                                                } catch (HyphenateException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        }).start();
                                         Toast.makeText(RegisteredUI.this, ""+ finalSuccess, Toast.LENGTH_SHORT).show();
                                         intent = new Intent(RegisteredUI.this, MainActivity.class);
                                         startActivity(intent);

@@ -1,6 +1,7 @@
 package com.txzh.walk.HomePage;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,15 +13,18 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.hyphenate.chat.EMClient;
 import com.txzh.walk.Adapter.FragmentAdapter;
 import com.txzh.walk.BroadcastReceiver.NetworkChangeReceiver;
 import com.txzh.walk.Fragment.GroupFragment;
 import com.txzh.walk.Fragment.MapFragment;
 import com.txzh.walk.Fragment.NewsFragment;
 import com.txzh.walk.Fragment.PersonalFragment;
+import com.txzh.walk.Listener.ChatListener.MyConnectionChatListener;
 import com.txzh.walk.MyViewPager.MyViewPager;
 import com.txzh.walk.R;
 
@@ -104,24 +108,45 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
     }
 
 
+    @SuppressLint("ResourceAsColor")
     @Override
     public void onClick(View v) {
         int id=v.getId();
         switch (id){
             case R.id.tv_map_walk_home:
                 viewPager.setCurrentItem(0);
+                tv_map_walk_home.setTextColor(getResources().getColorStateList(R.color.colorPrimary));
+                tv_group_walk_home.setTextColor(getResources().getColorStateList(R.color.smssdk_white));
+                tv_news_walk_home.setTextColor(getResources().getColorStateList(R.color.smssdk_white));
+                tv_personal_walk_home.setTextColor(getResources().getColorStateList(R.color.smssdk_white));
+                Log.i("WWWWW","0000000000");
                 break;
 
             case R.id.tv_group_walk_home:
                 viewPager.setCurrentItem(1);
+                tv_map_walk_home.setTextColor(getResources().getColorStateList(R.color.smssdk_white));
+                tv_group_walk_home.setTextColor(getResources().getColorStateList(R.color.colorPrimary));
+                tv_news_walk_home.setTextColor(getResources().getColorStateList(R.color.smssdk_white));
+                tv_personal_walk_home.setTextColor(getResources().getColorStateList(R.color.smssdk_white));
+                Log.i("WWWWW","1111111111111");
                 break;
 
             case R.id.tv_news_walk_home:
                 viewPager.setCurrentItem(2);
+                tv_map_walk_home.setTextColor(getResources().getColorStateList(R.color.smssdk_white));
+                tv_group_walk_home.setTextColor(getResources().getColorStateList(R.color.smssdk_white));
+                tv_news_walk_home.setTextColor(getResources().getColorStateList(R.color.colorPrimary));
+                tv_personal_walk_home.setTextColor(getResources().getColorStateList(R.color.smssdk_white));
+                Log.i("WWWWW","222222222222222222");
                 break;
 
             case R.id.tv_personal_walk_home:
                 viewPager.setCurrentItem(3);
+                tv_map_walk_home.setTextColor(getResources().getColorStateList(R.color.smssdk_white));
+                tv_group_walk_home.setTextColor(getResources().getColorStateList(R.color.smssdk_white));
+                tv_news_walk_home.setTextColor(getResources().getColorStateList(R.color.smssdk_white));
+                tv_personal_walk_home.setTextColor(getResources().getColorStateList(R.color.colorPrimary));
+                Log.i("WWWWW","333333333333333333");
                 break;
         }
     }

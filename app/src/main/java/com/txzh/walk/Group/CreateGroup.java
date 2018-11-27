@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.EmbossMaskFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,14 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.hyphenate.EMCallBack;
+import com.hyphenate.EMGroupChangeListener;
+import com.hyphenate.EMValueCallBack;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMGroup;
+import com.hyphenate.chat.EMGroupManager;
+import com.hyphenate.chat.EMGroupOptions;
+import com.hyphenate.exceptions.HyphenateException;
 import com.txzh.walk.HomePage.WalkHome;
 import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.R;
@@ -45,6 +54,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import static com.txzh.walk.Fragment.GroupFragment.manageGroupInfoBeanList;
 
 public class CreateGroup extends AppCompatActivity implements View.OnClickListener {
     private ImageButton ib_Return;                    //返回
@@ -100,9 +111,6 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.ib_Return:
-                intent = new Intent(CreateGroup.this, WalkHome.class);
-                intent.putExtra("flag",1);
-                startActivity(intent);
                 CreateGroup.this.finish();
                 break;
             case R.id.btn_groupEstablish:
@@ -113,6 +121,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                 if(groupNickName.isEmpty()){
                     Toast.makeText(this, "请输入昵称", Toast.LENGTH_SHORT).show();
                 }else {
+
                     if(bitmaps == null){
                         @SuppressLint("ResourceType")
                         InputStream is = getResources().openRawResource(R.drawable.headportrait);
@@ -350,63 +359,86 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
         new Thread(new Runnable() {
             @Override
             public void run() {
-                OkHttpClient client = new OkHttpClient();
-                //设置文件类型
-                MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
-                RequestBody fileBody = RequestBody.create(MEDIA_TYPE_PNG, headPic);
-                RequestBody requestBody = new MultipartBody.Builder()
-                        .setType(MultipartBody.FORM)
-                        .addFormDataPart("userID", "" + id)
-                        .addFormDataPart("groupName", groupNickName)
-                        .addFormDataPart("groupDescribe", groupSynopsis)
-                        .addFormDataPart("image", "grouphead_image", fileBody)
-                        .build();
 
-                Request request = new Request.Builder()
-                        .url(NetWorkIP.URL_createGroup)
-                        .post(requestBody)
-                        .build();
-
-                client.newCall(request).enqueue(new Callback() {
+                String [] str={};
+                EMGroupOptions option = new EMGroupOptions();
+                option.maxUsers = 200;
+                option.style = EMGroupManager.EMGroupStyle.EMGroupStylePrivateMemberCanInvite;
+                EMClient.getInstance().groupManager().asyncCreateGroup(groupNickName, groupSynopsis, str, Tools.getAccounts(), option, new EMValueCallBack<EMGroup>() {
                     @Override
-                    public void onFailure(Call call, IOException e) {
-                        e.printStackTrace();
-                    }
+                    public void onSuccess(EMGroup emGroup) {
 
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        if (!response.isSuccessful()) {
-                            return;
-                        }
+                        Log.i("hhhhhh", "我是群ID:"+emGroup.getGroupId());
 
-                        JSONObject object = null;
-                        String success = null;
-                        String message = null;
-                        try {
-                            object = new JSONObject(response.body().string());
-                            success = object.getString("success");
-                            message = object.getString("message");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        final String finalSuccess = success;
-                        final String finalMessage = message;
-                        handler.post(new Runnable() {
+                        OkHttpClient client = new OkHttpClient();
+                        //设置文件类型
+                        MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+                        RequestBody fileBody = RequestBody.create(MEDIA_TYPE_PNG, headPic);
+                        RequestBody requestBody = new MultipartBody.Builder()
+                                .setType(MultipartBody.FORM)
+                                .addFormDataPart("userID", "" + id)
+                                .addFormDataPart("groupHXID",emGroup.getGroupId())
+                                .addFormDataPart("groupName", groupNickName)
+                                .addFormDataPart("groupDescribe", groupSynopsis)
+                                .addFormDataPart("image", "grouphead_image", fileBody)
+                                .build();
+
+                        Request request = new Request.Builder()
+                                .url(NetWorkIP.URL_createGroup)
+                                .post(requestBody)
+                                .build();
+
+                        client.newCall(request).enqueue(new Callback() {
                             @Override
-                            public void run() {
-                                if ("true".equals(finalSuccess)) {
-                                    Toast.makeText(CreateGroup.this, "" + finalMessage, Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(CreateGroup.this, "" + finalMessage, Toast.LENGTH_SHORT).show();
+                            public void onFailure(Call call, IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                if (!response.isSuccessful()) {
+                                    return;
                                 }
+
+                                JSONObject object = null;
+                                String success = null;
+                                String message = null;
+                                try {
+                                    object = new JSONObject(response.body().string());
+                                    success = object.getString("success");
+                                    message = object.getString("message");
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                final String finalSuccess = success;
+                                final String finalMessage = message;
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if ("true".equals(finalSuccess)) {
+                                            Toast.makeText(CreateGroup.this, "" + finalMessage, Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(CreateGroup.this, "" + finalMessage, Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+
                             }
                         });
+
+
+
+                    }
+
+                    @Override
+                    public void onError(int i, String s) {
+
                     }
                 });
+
             }
         }).start();
     }
-
 
 
 }
