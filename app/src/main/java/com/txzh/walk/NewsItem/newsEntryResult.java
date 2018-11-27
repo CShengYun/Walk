@@ -1,18 +1,18 @@
-package com.txzh.walk.Group;
+package com.txzh.walk.NewsItem;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Toast;
 
-import com.txzh.walk.Adapter.GroupAddMembersInfoAdapter;
-import com.txzh.walk.Bean.GroupAddInfoBean;
+import com.txzh.walk.Adapter.NewsEntryResultAdapter;
+import com.txzh.walk.Bean.NewsEntryResultInfoBean;
 import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.R;
+import com.txzh.walk.ToolClass.Tools;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,65 +32,52 @@ import okhttp3.Response;
 
 import static com.txzh.walk.HomePage.WalkHome.context;
 
-public class addGroupMembers extends AppCompatActivity implements View.OnClickListener {
-    private ImageButton ib_searchUserReturn;     //返回按钮
-    private EditText et_userName;           //输入框
-    private ImageButton ibtn_searchUser;    //搜索按钮
-    private ListView lv_searchUser;         //列表
-    private GroupAddMembersInfoAdapter groupAddInfoAdapter;  //查询群组列表
-    private String searchKey;              //搜索框内容
+public class newsEntryResult extends AppCompatActivity implements View.OnClickListener {
+    private ImageButton ib_entryedResultReturn;
+    private ListView lv_entryResult;
+
+    private NewsEntryResultAdapter newsEntryResultAdapter;
+    private List<NewsEntryResultInfoBean> newsEntryResultInfoBeanList = new ArrayList<NewsEntryResultInfoBean>();
+
     private Handler handler;
-    private List<GroupAddInfoBean> groupAddInfoBeanList = new ArrayList<GroupAddInfoBean>();
-    private Bundle bundle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_group_members);
+        setContentView(R.layout.activity_news_entry_result);
 
-        init();
-    }
-
-    private void init(){
         handler = new Handler();
-        ib_searchUserReturn = findViewById(R.id.ib_searchUserReturn);
-        ib_searchUserReturn.setOnClickListener(this);
-        et_userName = findViewById(R.id.et_userName);
-        ibtn_searchUser = findViewById(R.id.ibtn_searchUser);
-        ibtn_searchUser.setOnClickListener(this);
-        lv_searchUser = findViewById(R.id.lv_searchUser);
 
-        bundle=getIntent().getBundleExtra("groupIdInfo");
+        ib_entryedResultReturn = findViewById(R.id.ib_entryedResultReturn);
+        ib_entryedResultReturn.setOnClickListener(this);
+        lv_entryResult = findViewById(R.id.lv_entryResult);
+
+        getNewsEntryResult();
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case R.id.ib_searchUserReturn:
+            case R.id.ib_entryedResultReturn:
                 finish();
                 break;
-            case R.id.ibtn_searchUser:
-                searchKey = et_userName.getText().toString().trim();
-                searchUsers(searchKey);
-                break;
         }
-
     }
 
-    //查询用户
-    private void searchUsers(final String keyword) {
+    public void getNewsEntryResult(){
         new Thread(new Runnable() {
             @Override
             public void run() {
                 OkHttpClient client = new OkHttpClient();
-                RequestBody formBody = new FormBody.Builder()
-                        .add("key", keyword)
+                RequestBody formbody = new FormBody.Builder()
+                        .add("userID", ""+ Tools.getUserID())
                         .build();
 
                 Request request = new Request.Builder()
-                        .url(NetWorkIP.URL_addMembers)
-                        .post(formBody)
+                        .url(NetWorkIP.URL_attainEntryResult)
+                        .post(formbody)
                         .build();
+
                 Response response;
                 client.newCall(request).enqueue(new Callback() {
                     @Override
@@ -100,12 +87,11 @@ public class addGroupMembers extends AppCompatActivity implements View.OnClickLi
 
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
-                        if (!response.isSuccessful()) {
+                        if(!response.isSuccessful()){
                             return;
                         }
 
-                        groupAddInfoBeanList.clear();
-
+                        newsEntryResultInfoBeanList.clear();
                         JSONObject jsonObject = null;
                         String success = null;
                         String message = null;
@@ -117,18 +103,13 @@ public class addGroupMembers extends AppCompatActivity implements View.OnClickLi
                             JSONArray jsonArray = jsonObject.getJSONArray("data");
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject object = (JSONObject) jsonArray.get(i);
-                                GroupAddInfoBean groupAddInfoBean = new GroupAddInfoBean();
+                                NewsEntryResultInfoBean newsEntryResultInfoBean = new NewsEntryResultInfoBean();
 
-                                groupAddInfoBean.setUserID(object.getString("userID"));
-                                groupAddInfoBean.setUserHead(object.getString("headPath"));
-                                groupAddInfoBean.setUserNickName(object.getString("nickName"));
-                                groupAddInfoBean.setUserAccounts(object.getString("userName"));
+                                newsEntryResultInfoBean.setDate(object.getString("date"));
+                                newsEntryResultInfoBean.setGroupName(object.getString("groupName"));
+                                newsEntryResultInfoBean.setStatus(object.getString("status"));
 
-                                groupAddInfoBeanList.add(groupAddInfoBean);
-
-                                Log.i("aaaa",object.getString("headPath"));
-
-
+                                newsEntryResultInfoBeanList.add(newsEntryResultInfoBean);
                             }
 
 
@@ -141,11 +122,16 @@ public class addGroupMembers extends AppCompatActivity implements View.OnClickLi
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                //Toast.makeText(RetrievePassword.this, ""+b, Toast.LENGTH_SHORT).show();
-                                groupAddInfoAdapter = new GroupAddMembersInfoAdapter(groupAddInfoBeanList, context, bundle.getString("groupID"));
-                                lv_searchUser.setAdapter(groupAddInfoAdapter);
+                                if(finalSuccess.equals("true")){
+                                    newsEntryResultAdapter = new NewsEntryResultAdapter(newsEntryResultInfoBeanList,context);
+                                    lv_entryResult.setAdapter(newsEntryResultAdapter);
+                                }else {
+                                    Toast.makeText(newsEntryResult.this, ""+ finalMessage, Toast.LENGTH_SHORT).show();
+                                }
                             }
                         });
+
+
                     }
                 });
             }

@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText et_accounts, et_password;
     private String accounts, password;
     private Handler handler;
-    public static String userID = String.valueOf(Tools.getUserID());
+    public static String userID;
 
 
 
@@ -75,7 +75,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tv_registered_account = findViewById(R.id.tv_registered_account);
         tv_registered_account.setOnClickListener(this);
         et_accounts = findViewById(R.id.et_accounts);
+        et_accounts.setSelection(et_accounts.getText().length());
         et_password = findViewById(R.id.et_password);
+        et_password.setSelection(et_password.getText().length());
         handler = new Handler();
     }
 
@@ -85,8 +87,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         id = view.getId();
         switch (id) {
             case R.id.btn_login:
-                intent = new Intent(MainActivity.this, WalkHome.class);
-                startActivity(intent);
                 accounts = et_accounts.getText().toString().trim();
                 password = et_password.getText().toString().trim();
                 if (judAccounts()) {
@@ -181,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Tools.setHeadPhoto(object.getString("headPath"));
                                 Tools.setUserID(object.getInt("userID"));
                             }
+                            userID = String.valueOf(Tools.getUserID());
 
                         } catch (JSONException e) {
                             e.printStackTrace();

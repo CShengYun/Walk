@@ -17,4 +17,12 @@ public class NetWorkIP {
     public static String URL_obtainGroupInfo = URL+"/obtainGroupInfo";
     public static String URL_singOutGroup = URL+"/singOutGroup";
     public static String URL_disbandGroup = URL+"/disbandGroup";
+    public static String URL_addMembers = URL+"/searchUser";
+    public static String URL_addUser = URL+"/addUser";
+    public static String URl_getNewsCounts = URL+"/attainMessageNum";
+    public static String URL_attainSystem = URL+"/attainSystem";
+    public static String URL_attainEntryApplication = URL+"/attainEntryApplication";
+    public static String URL_auditingAddGroup = URL+"/auditingAddGroup";
+    public static String URL_attainAddUser = URL+"/attainAddUser";
+    public static String URL_attainEntryResult = URL+"/attainEntryResult";
 }

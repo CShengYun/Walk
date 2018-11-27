@@ -8,4 +8,7 @@
     <color name="Blue">#5CACEE</color>
     <color name="White">#FFFFFF</color>
     <color name="grays">#EAEAEA</color>
+    <color name="Blue1">#800000FF</color>
+    <color name="Blue2">#0000FF</color>
+    <color name="Black">#1C1C1C</color>
 </resources>

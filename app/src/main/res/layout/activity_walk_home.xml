@@ -58,16 +58,17 @@
             android:text="消息"
             android:textSize="16dp"
             android:textColor="#ffffff"/>
+
         <TextView
             android:id="@+id/tv_personal_walk_home"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:drawableTop="@drawable/personal_32"
             android:gravity="center_horizontal|center_vertical"
             android:text="我的"
-            android:textSize="16dp"
-            android:textColor="#ffffff"/>
+            android:textColor="#ffffff"
+            android:textSize="16dp" />
 
     </LinearLayout>
 

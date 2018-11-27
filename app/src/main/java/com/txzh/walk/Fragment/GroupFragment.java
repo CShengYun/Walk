@@ -35,6 +35,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static com.txzh.walk.MainActivity.userID;
 import static com.txzh.walk.HomePage.WalkHome.context;
 import static com.txzh.walk.HomePage.WalkHome.openGroup;
 import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainAllGroupId;
@@ -81,7 +82,7 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         System.out.println("我滑动了第二个界面22");
         view = inflater.inflate(R.layout.fragment_group, container, false);
-        obtainAllGroup(1+"");              //获取所有群组信息
+        obtainAllGroup(userID);              //获取所有群组信息
         init();             //实例化和监听控件
         GroupListListener();
         return view;
