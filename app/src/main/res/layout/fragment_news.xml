@@ -8,88 +8,181 @@
     <LinearLayout
         android:id="@+id/news_linear"
         android:layout_alignParentTop="true"
+        android:background="@color/Blue"
         app:layout_heightPercent="10%"
-        app:layout_widthPercent="100%"
-        android:background="@color/top_bar_normal_bg">
+        app:layout_widthPercent="100%">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="消息与通知"
-            android:textSize="25dp"
             android:textColor="@color/White"
-            android:textStyle="bold"/>
+            android:textSize="25dp"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_below="@+id/news_linear"
-        app:layout_widthPercent="100%"
+        android:orientation="vertical"
         app:layout_heightPercent="90%"
-        android:orientation="vertical">
+        app:layout_widthPercent="100%">
 
-        <TextView
-            android:id="@+id/news_tv_chat_record"
+        <LinearLayout
+            android:id="@+id/ll_charRecord"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="聊天记录"
-            android:gravity="center_vertical"
-            android:drawableLeft="@drawable/news_chat_news_32dp"
-            android:drawablePadding="10dp"
-            android:padding="10dp"
-            android:textSize="20dp"/>
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/news_tv_chat_record"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:drawableLeft="@drawable/news_chat_news_32dp"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="聊天记录"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/tv_charRecord"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/colorGray"/>
+            android:background="@color/colorGray" />
 
-
-        <TextView
-            android:id="@+id/news_tv_system_push"
+        <LinearLayout
+            android:id="@+id/ll_systemPush"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="系统推送"
-            android:gravity="center_vertical"
-            android:drawableLeft="@drawable/news_system_news_32dp"
-            android:drawablePadding="10dp"
-            android:padding="10dp"
-            android:textSize="20dp"/>
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/news_tv_system_push"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:drawableLeft="@drawable/news_system_news_32dp"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="系统推送"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/tv_systemPush"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/colorGray"/>
+            android:background="@color/colorGray" />
 
-
-        <TextView
-            android:id="@+id/news_tv_group_apply"
+        <LinearLayout
+            android:id="@+id/ll_entryGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="入群申请通知"
-            android:gravity="center_vertical"
-            android:drawableLeft="@drawable/news_group_apply_32dp"
-            android:drawablePadding="10dp"
-            android:padding="10dp"
-            android:textSize="20dp"/>
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/news_tv_group_apply"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:drawableLeft="@drawable/news_group_apply_32dp"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="入群申请通知"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/tv_entryGroup"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/colorGray"/>
+            android:background="@color/colorGray" />
 
-
-        <TextView
-            android:id="@+id/news_tv_group_result"
+        <LinearLayout
+            android:id="@+id/ll_entryedFroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="入群结果通知"
-            android:gravity="center_vertical"
-            android:drawableLeft="@drawable/news_group_result_32dp"
-            android:drawablePadding="10dp"
-            android:padding="10dp"
-            android:textSize="20dp"/>
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/news_tv_group_invitation"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:drawableLeft="@drawable/ic_volume_down_black_24dp"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="邀请入群通知"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/tv_entryedFroup"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+        </LinearLayout>
+
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/colorGray"/>
+            android:background="@color/colorGray" />
+
+        <LinearLayout
+            android:id="@+id/ll_entryResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/news_tv_group_result"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:drawableLeft="@drawable/news_group_result_32dp"
+                android:drawablePadding="10dp"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:text="入群结果通知"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/tv_entryResult"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorGray" />
 
     </LinearLayout>
 

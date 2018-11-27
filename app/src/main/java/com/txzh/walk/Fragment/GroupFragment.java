@@ -38,6 +38,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static com.txzh.walk.MainActivity.userID;
 import static com.txzh.walk.HomePage.WalkHome.context;
 import static com.txzh.walk.HomePage.WalkHome.openGroup;
 import static com.txzh.walk.MainActivity.userID;

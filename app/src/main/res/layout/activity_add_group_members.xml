@@ -22,7 +22,7 @@
             android:orientation="horizontal">
 
             <ImageButton
-                android:id="@+id/ib_groupReturn"
+                android:id="@+id/ib_searchUserReturn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -55,17 +55,18 @@
 
 
             <EditText
-                android:id="@+id/et_groupName"
+                android:id="@+id/et_userName"
                 android:layout_width="300dp"
                 android:layout_height="40dp"
                 android:background="@drawable/group_edittextsharp"
-                android:layout_centerVertical="true"/>
+                android:layout_centerVertical="true"
+                android:hint="请输入昵称/用户名/手机号"/>
 
             <ImageButton
-                android:id="@+id/ibtn_searchGroup"
+                android:id="@+id/ibtn_searchUser"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignRight="@+id/et_groupName"
+                android:layout_alignRight="@+id/et_userName"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="12dp"
                 android:layout_marginTop="5dp"
@@ -83,7 +84,7 @@
         android:layout_marginTop="30dp">
 
         <ListView
-            android:id="@+id/lv_searchGroup"
+            android:id="@+id/lv_searchUser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 

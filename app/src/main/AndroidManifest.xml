@@ -151,6 +151,26 @@
             android:windowSoftInputMode="adjustPan|stateHidden" ></activity>
         <activity android:name=".Chat.ChatGroup"
             android:windowSoftInputMode="adjustPan|stateHidden" ></activity>
+        <activity
+            android:name=".Group.addGroupMembers"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".NewsItem.newsPush"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".NewsItem.NewsSystemPushItem"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".NewsItem.newsEntryGroup"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".NewsItem.newsEntryedFroup"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".NewsItem.newsEntryResult"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
     </application>
 
 </manifest>

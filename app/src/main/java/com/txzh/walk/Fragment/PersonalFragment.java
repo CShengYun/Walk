@@ -77,13 +77,14 @@ public class PersonalFragment extends Fragment implements View.OnClickListener {
         Log.i("aaaa","bbbb"+Tools.getAccounts());
     }
 
+
     @Override
     public void onClick(View view) {
 
         switch (view.getId()){
             case R.id.tv_personalData:
                 Intent intent = new Intent(getActivity(),personalData.class);
-               startActivityForResult(intent,1);
+                startActivity(intent);
                 break;
             case R.id.tv_quit:
                 final BottomAnimDialog dialog =new BottomAnimDialog(getActivity(),"退出登录","关闭");
@@ -137,7 +138,7 @@ public class PersonalFragment extends Fragment implements View.OnClickListener {
     public void onStart() {
 
         super.onStart();
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("testSP", MODE_PRIVATE);
+       SharedPreferences sharedPreferences = getActivity().getSharedPreferences("testSP", MODE_PRIVATE);
         //第一步:取出字符串形式的Bitmap
         String imageString = sharedPreferences.getString("image", "");
         //第二步：利用Base64将字符串转换为ByteArryInputStream

@@ -53,6 +53,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import static com.txzh.walk.HomePage.WalkHome.context;
+
 public class personalData extends AppCompatActivity implements View.OnClickListener {
     private ImageButton ib_return;             //返回按钮
     private CircleImageView iv_custom;         //头像
@@ -82,6 +84,8 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
     private DeleteCaChe deleteCaChe;
     private boolean isFirst = true;   //是否第一次使用
 
+    private DeleteCaChe deleteCaChes;         // 清除CircleImage 缓存
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,6 +106,7 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
 
     private void init() {
         handler = new Handler();
+        deleteCaChes = new DeleteCaChe(context,handler);
         ib_return = findViewById(R.id.ib_Return);
         ib_return.setOnClickListener(this);
         iv_custom = findViewById(R.id.iv_custom);
@@ -117,6 +122,7 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
         et_phone.setText(Tools.getPhongNumber());
 
         tv_Sex.setText(Tools.getSex());
+        deleteCaChes.remove(Tools.getHeadPhoto());
         iv_custom.setImageUrl(Tools.getHeadPhoto(), R.drawable.headportrait, null);
         isFirst = false;
         nonEditable();
@@ -128,9 +134,6 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
             case R.id.ib_Return:
                 if (flag) {
                     headPicChange = false;
-                    Intent intent = new Intent();
-                    intent.putExtra("bitmap", bitmaps);
-                    setResult(1, intent);
                     finish();  //返回上一个Activity
                 } else {
                     getBitmapFromSharedPreferences();
@@ -185,6 +188,7 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
         nonEditable();
         btn_Edit.setText("编辑资料");
         flag = true;
+        finish();
     }
 
 
@@ -203,11 +207,12 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
                 getBitmapFromSharedPreferences();
             }
             getChangePersonalMessage();
-            flag = true;
             if (headPicChange) {
                 Tools.setHeadPicIfChange(true);
             }
             btn_Edit.setText("编辑资料");
+
+            flag = true;
         }
     }
 
@@ -293,34 +298,6 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
 
     //裁剪图片
     private void crop(Activity activity, Uri uri, File outputFile) {
-        /*//裁剪图片意图
-        Intent intent = new Intent("com.android.camera.action.CROP");
-        FileProviderUtils.setIntentDataAndType(this, intent, "image/*", uri, true);
-
-        intent.putExtra("crop", "true");
-        //裁剪框的比例
-        intent.putExtra("aspectX", 1);
-        intent.putExtra("aspectY", 1);
-        //裁剪后输出图片的尺寸大小
-        intent.putExtra("outputX", 90);
-        intent.putExtra("outputY", 90);
-
-        uritempFile = uri;
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uritempFile);
-
-        intent.putExtra("return-data", false);
-        //图片格式
-        //intent.putExtra("outputFormat","PNG");
-        intent.putExtra("outputFormat", Bitmap.CompressFormat.PNG.toString());
-        //取消人脸识别
-        intent.putExtra("onFaceDetection", true);
-
-       //处理小米手机不兼容问题
-        uritempFile = uri;
-        intent.putExtra(MediaStore.EXTRA_OUTPUT,uritempFile);
-
-        //开启一个带有返回值的Activity,请求吗PHOTO_REQUEST_CUT
-        startActivityForResult(intent, PHOTO_REQUEST_CUT);*/
 
         Intent intent = new Intent("com.android.camera.action.CROP");
         FileProviderUtils.setIntentDataAndType(activity, intent, "image/*", uri, true);
@@ -400,6 +377,7 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
                 isFlag = true;
                 bitmaps = bitmap;
                 headPicChange = true;
+                iv_custom.setImageBitmap(bitmap);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -449,6 +427,7 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
             Bitmap bitmap = BitmapFactory.decodeStream(byteArrayInputStream);
             iv_custom.setImageBitmap(bitmap);
             bitmaps = bitmap;
+            iv_custom.setImageBitmap(bitmap);
             isFlag = true;
         }
 
@@ -487,7 +466,7 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
 
         if (!Tools.getPhongNumber().equals(phone)) {
             checkPhoneNumberIfTure(phone);
-        } else {
+        } else if(bitmaps != null || !Tools.getNickName().equals(nickName) || !Tools.getSex().equals(sex)){
             uploadPersonalMessage(id, nickName, phone, sex, getFile(bitmaps));
         }
     }
@@ -603,6 +582,9 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
                             @Override
                             public void run() {
                                 if ("true".equals(finalSuccess)) {
+                                    Tools.setNickName(nickName);
+                                    Tools.setSex(sex);
+                                    Tools.setPhongNumber(phone);
                                     Toast.makeText(personalData.this, "" + finalMessage, Toast.LENGTH_SHORT).show();
                                 } else {
                                     Toast.makeText(personalData.this, "" + finalMessage, Toast.LENGTH_SHORT).show();
@@ -633,12 +615,12 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
         return file;
     }
 
-    //从新获取头像
+   /* //从新获取头像
     public void onRestart() {
 
         super.onRestart();
 
         getBitmapFromSharedPreferences();
-    }
+    }*/
 
 }

@@ -139,7 +139,10 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.tv_add_group_member:                                     //添加群成员
-
+                Intent intent = new Intent(this,addGroupMembers.class);
+                bundle.putString("groupID",groupID);
+                intent.putExtra("groupIdInfo",bundle);
+                startActivity(intent);
                 break;
 
             case R.id.tv_location_group_member:                                 //群员位置

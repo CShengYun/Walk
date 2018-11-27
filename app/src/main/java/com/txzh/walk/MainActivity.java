@@ -83,7 +83,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tv_registered_account = findViewById(R.id.tv_registered_account);
         tv_registered_account.setOnClickListener(this);
         et_accounts = findViewById(R.id.et_accounts);
+        et_accounts.setSelection(et_accounts.getText().length());
         et_password = findViewById(R.id.et_password);
+        et_password.setSelection(et_password.getText().length());
         handler = new Handler();
     }
 

@@ -50,4 +50,6 @@ dependencies {
     implementation files('libs/okhttp-3.10.0.jar')
     implementation files('libs/okio-1.14.0.jar')
     implementation project(':easeui')
+    implementation files('libs/badgeview.jar')
+    compile 'q.rorbin:badgeview:1.1.3'
 }

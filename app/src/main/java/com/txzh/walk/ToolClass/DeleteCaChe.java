@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
-import android.widget.Toast;
 
 import com.loopj.android.image.WebImage;
 
@@ -62,7 +61,7 @@ public class DeleteCaChe {
             File var2 = new File(this.diskCachePath, this.getCacheKey(var1));
             if(var2.exists() && var2.isFile()) {
                 var2.delete();
-                Toast.makeText(c,"删除成功！!"+var2.getName(),Toast.LENGTH_SHORT).show();
+                //Toast.makeText(c,"删除成功！!"+var2.getName(),Toast.LENGTH_SHORT).show();
             }
         }
     }
