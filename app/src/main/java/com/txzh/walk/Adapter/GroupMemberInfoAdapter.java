@@ -53,6 +53,13 @@ public class GroupMemberInfoAdapter extends BaseAdapter {
         }else {
             viewHolder = (ViewHolder)convertView.getTag();
         }
+        viewHolder.headPath.setImageUrl(groupMemberInfoBean.getGroupMemberHeadPath(),R.drawable.headportrait,null);
+        viewHolder.headPath.setOnClickListener(new CircleImageView.OnClickListener() {
+            @Override
+            public void onClick() {
+
+            }
+        });
         viewHolder.name.setText(groupMemberInfoBean.getGroupMemberNiceName());
         return convertView;
     }

@@ -63,7 +63,6 @@
             android:id="@+id/group_lv_manage_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="30dp"
             android:visibility="gone">
 
 
@@ -84,7 +83,6 @@
             android:id="@+id/group_lv_add_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="30dp"
             android:visibility="gone">
 
 

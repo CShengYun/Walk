@@ -6,7 +6,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -17,6 +20,7 @@ import com.txzh.walk.Bean.GroupMemberInfoBean;
 import com.txzh.walk.Bean.GroupMemberLocationBean;
 import com.txzh.walk.HomePage.WalkHome;
 import com.txzh.walk.R;
+import com.txzh.walk.customComponents.DialogList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,14 +46,14 @@ import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainGroupPositionInfo;
 
 public class GroupMembers extends AppCompatActivity implements View.OnClickListener {
     //返回、群昵称、添加群成员、群员定位、群简介
-    private TextView back_group_member,group_name_group_member,add_group_member,location_group_member,group_describle_group_member;                           //群昵称
+    private TextView back_group_member,group_name_group_member,add_group_member;                           //群昵称
     private ListView listview_group_member;                              //群成员ListVew
     private GroupMemberInfoAdapter groupMemberInfoAdapter;                //群成员适配器
 
     private Bundle bundleReceive,bundleSend = new Bundle();                                                  //接收传过来的数据
     private String groupName,groupID,groupHostID;                                      //保存传过来的数据
     private String isObationGroupMemberLocation;
-
+    private TextView groupList;         //列表按钮
 
     public static List<GroupMemberInfoBean> groupMemberInfoBeanList = new ArrayList<GroupMemberInfoBean>();
     public static boolean isLocation=false;                                 //是否获取到群成员位置，显示在地图上
@@ -59,6 +63,8 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
     private int groupMemberCount = 0,groupManCount = 0,groupWomanCount = 0;           //群成员、男、女数量
     private String groupDescrible = "",groupAnnouncement = "";
     protected Handler handler;
+
+    private Bundle bundle = new Bundle();
     public GroupMembers(){
 
     }
@@ -82,13 +88,11 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
         back_group_member = (TextView)findViewById(R.id.tv_back_group_member);
         group_name_group_member = (TextView)findViewById(R.id.tv_group_name_group_member);
         add_group_member = (TextView)findViewById(R.id.tv_add_group_member);
-        location_group_member = (TextView)findViewById(R.id.tv_location_group_member);
-        group_describle_group_member = (TextView)findViewById(R.id.tv_group_describle_group_member);
+        groupList = (TextView)findViewById(R.id.tv_groupList);
+        groupList.setOnClickListener(this);
 
         back_group_member.setOnClickListener(this);
         add_group_member.setOnClickListener(this);
-        location_group_member.setOnClickListener(this);
-        group_describle_group_member.setOnClickListener(this);
 
         group_name_group_member.setText(groupName);                            //设置群组昵称
 
@@ -110,6 +114,7 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
                 }
 
                 bundleSend.putString("userID",groupMemberInfoBeanList.get(position).getGroupMemberID());
+                bundleSend.putString("groupID",groupID);
                 intent = new Intent(GroupMembers.this,GroupSingleMember.class);
                 intent.putExtra("userIdInfo",bundleSend);
                 startActivityForResult(intent,1);
@@ -124,7 +129,7 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
             if(requestCode==1){
                 if(resultCode==1){
 
-                    Log.i("88888","返回数据"+data.getSerializableExtra("userInfo"));
+                    requestGroupMember();
                 }
             }
         }
@@ -138,19 +143,42 @@ public class GroupMembers extends AppCompatActivity implements View.OnClickListe
                 GroupMembers.this.finish();
                 break;
 
+            case R.id.tv_groupList:
+                final DialogList dialogList = new DialogList(this);
+                Window win = dialogList.getWindow();
+                WindowManager.LayoutParams params = win.getAttributes();
+                win.setGravity(Gravity.RIGHT|Gravity.TOP);
+                params.x = 5;
+                params.y = 100;
+                win.setAttributes(params);
+                dialogList.setCanceledOnTouchOutside(true);     //点击任意区域关闭
+                dialogList.show();
+
+                dialogList.setOnGroupLocated(new DialogList.GroupLocatedClick() {
+                    @Override
+                    public void onGroupLocated() {          //群位置
+                        //Toast.makeText(GroupMembers.this, "我是位置", Toast.LENGTH_SHORT).show();
+                        obtainGroupMemberLocation();
+                        dialogList.dismiss();
+                    }
+                });
+
+                dialogList.setOnGroupResume(new DialogList.GroupResumeClick() {
+                    @Override
+                    public void onGroupResume() {       //群简介
+                        //Toast.makeText(GroupMembers.this, "我是简介", Toast.LENGTH_SHORT).show();
+                        obtainGroupDescrible();
+                        dialogList.dismiss();
+                    }
+                });
+
+                break;
+
             case R.id.tv_add_group_member:                                     //添加群成员
                 Intent intent = new Intent(this,addGroupMembers.class);
                 bundle.putString("groupID",groupID);
                 intent.putExtra("groupIdInfo",bundle);
                 startActivity(intent);
-                break;
-
-            case R.id.tv_location_group_member:                                 //群员位置
-                obtainGroupMemberLocation();
-                break;
-
-            case R.id.tv_group_describle_group_member:                            //群简介
-                obtainGroupDescrible();
                 break;
         }
     }

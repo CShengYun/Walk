@@ -21,9 +21,13 @@ public class MyDialog extends Dialog {
     private onNoOnclickListener noOnclickListener;
     private onYesOnclickListener yesOnclickListener;
     private OnClickListener onClickListener;
+    private String left,right;
 
-    public MyDialog(Context context) {
+    public MyDialog(Context context,String left,String right) {
+
         super(context);
+        this.left = left;
+        this.right = right;
     }
 
     @Override
@@ -36,7 +40,7 @@ public class MyDialog extends Dialog {
         //点击鼠标返回键不取消动画
         setCancelable(false);
         initView();
-        initData();
+        initData(left,right);
         //初始化界面控件的事件
         initEvent();
     }
@@ -77,10 +81,10 @@ public class MyDialog extends Dialog {
     /**
      * 初始化界面控件的显示数据
      */
-    private void initData() {
+    private void initData(String left,String right) {
         //设置按钮的文字
-        bt_yes.setText("本地上传");
-        bt_no.setText("拍照上传");
+        bt_yes.setText(right);
+        bt_no.setText(left);
         tv_title.setText(title);
     }
 

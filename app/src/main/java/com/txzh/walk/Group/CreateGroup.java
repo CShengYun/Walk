@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.EmbossMaskFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,15 +20,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.hyphenate.EMCallBack;
-import com.hyphenate.EMGroupChangeListener;
 import com.hyphenate.EMValueCallBack;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMGroup;
 import com.hyphenate.chat.EMGroupManager;
 import com.hyphenate.chat.EMGroupOptions;
-import com.hyphenate.exceptions.HyphenateException;
-import com.txzh.walk.HomePage.WalkHome;
 import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.R;
 import com.txzh.walk.ToolClass.FileProviderUtils;
@@ -54,8 +49,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import static com.txzh.walk.Fragment.GroupFragment.manageGroupInfoBeanList;
 
 public class CreateGroup extends AppCompatActivity implements View.OnClickListener {
     private ImageButton ib_Return;                    //返回
@@ -101,7 +94,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
                 showDialog();
             }
         });
-        myDialog = new MyDialog(this);
+        myDialog = new MyDialog(this,"拍照上传","本地上传");
 
         handler = new Handler();
     }
@@ -146,7 +139,7 @@ public class CreateGroup extends AppCompatActivity implements View.OnClickListen
 
     //自定义对话框
     public void showDialog() {
-        myDialog = new MyDialog(this);
+        myDialog = new MyDialog(this,"拍照上传","本地上传");
         myDialog.setTitle("上传照片方式");
         myDialog.setYesButton(new MyDialog.onYesOnclickListener() {
             @Override

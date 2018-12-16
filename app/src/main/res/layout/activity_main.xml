@@ -59,6 +59,7 @@
                 android:background="@null"
                 android:drawableBottom="@drawable/underline"
                 android:paddingLeft="20dp"
+                android:maxLines="1"
                 android:textColor="@color/White"/>
 
             <TextView
@@ -95,11 +96,12 @@
                 android:layout_height="50dp"
                 android:layout_weight="6"
                 android:layout_gravity="center|top"
-                android:text="A123456"
+                android:text="123456"
                 android:password="true"
                 android:background="@null"
                 android:drawableBottom="@drawable/underline"
                 android:paddingLeft="20dp"
+                android:maxLines="1"
                 android:textColor="@color/White"/>
 
             <TextView

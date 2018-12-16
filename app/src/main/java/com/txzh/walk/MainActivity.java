@@ -18,10 +18,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.hyphenate.EMCallBack;
-import com.hyphenate.chat.EMChatManager;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMOptions;
-import com.hyphenate.exceptions.HyphenateException;
 import com.txzh.walk.HomePage.WalkHome;
 import com.txzh.walk.Listener.ChatListener.MyConnectionChatListener;
 import com.txzh.walk.NetWork.NetWorkIP;
@@ -206,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Log.i("bbbb", "我是success：" + finalSuccess);
 
                                 if ("true".equals(finalSuccess)) {
+                                    Toast.makeText(MainActivity.this, "" + finalMessage, Toast.LENGTH_SHORT).show();
 
                                     EMClient.getInstance().login(accounts,password,new EMCallBack() {//回调
                                         @Override
@@ -217,6 +216,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                             EMClient.getInstance().addConnectionListener(new MyConnectionChatListener());
 
                                             Log.d("hhhh", "登录聊天服务器成功！");
+                                            intent = new Intent(MainActivity.this, WalkHome.class);
+                                            startActivity(intent);
                                         }
 
                                         @Override
@@ -227,13 +228,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         @Override
                                         public void onError(int code, String message) {
                                             Log.d("hhhhh", "登录聊天服务器失败！");
+                                            EMClient.getInstance().logout(true, new EMCallBack() {
+
+                                                @Override
+                                                public void onSuccess() {
+                                                    // TODO Auto-generated method stub
+                                                    Log.i("hhhhhh","环信账号退出成功！");
+                                                }
+
+                                                @Override
+                                                public void onProgress(int progress, String status) {
+                                                    // TODO Auto-generated method stub
+
+                                                }
+
+                                                @Override
+                                                public void onError(int code, String message) {
+                                                    // TODO Auto-generated method stub
+                                                    Log.i("hhhhhh","环信账号退出失败！");
+                                                }
+                                            });
                                         }
                                     });
 
-
-                                    Toast.makeText(MainActivity.this, "" + finalSuccess, Toast.LENGTH_SHORT).show();
-                                    intent = new Intent(MainActivity.this, WalkHome.class);
-                                    startActivity(intent);
                                 } else {
                                     Toast.makeText(MainActivity.this, "" + finalMessage, Toast.LENGTH_SHORT).show();
                                 }
@@ -287,6 +304,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //在做打包混淆时，关闭debug模式，避免消耗不必要的资源
         EMClient.getInstance().setDebugMode(true);
 
+    }
+
+    public void onDestroy(){
+        super.onDestroy();
+        EMClient.getInstance().logout(true, new EMCallBack() {
+
+            @Override
+            public void onSuccess() {
+                // TODO Auto-generated method stub
+                Log.i("hhhhhh","环信账号退出成功！");
+            }
+
+            @Override
+            public void onProgress(int progress, String status) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onError(int code, String message) {
+                // TODO Auto-generated method stub
+                Log.i("hhhhhh","环信账号退出失败！");
+            }
+        });
+        Log.i("hhhhh","销毁");
     }
 
 }

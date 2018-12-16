@@ -9,12 +9,11 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.txzh.walk.Chat.ChatListActivity;
 import com.jauker.widget.BadgeView;
+import com.txzh.walk.Chat.ChatListActivity;
 import com.txzh.walk.NewsItem.newsEntryGroup;
 import com.txzh.walk.NewsItem.newsEntryResult;
 import com.txzh.walk.NewsItem.newsEntryedFroup;
@@ -23,7 +22,7 @@ import com.txzh.walk.R;
 import com.txzh.walk.ToolClass.NewsCounts;
 
 public class NewsFragment extends Fragment implements View.OnClickListener {
-    private TextView tv_charRecord;
+    private TextView tv_charRecord;         //聊天记录
     private TextView tv_systemPush;         //系统推送
     private TextView tv_entryGroup;         //申请入群通知
     private TextView tv_entryedFroup;       //群主邀请入群通知
@@ -42,6 +41,8 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     private BadgeView entryGroup;
     private BadgeView entryedFroup;
     private BadgeView entryResult;
+
+    private Intent intent;
 
     Handler handler;
 
@@ -141,23 +142,24 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.ll_charRecord:
-
+                intent = new Intent(getActivity().getApplicationContext(), ChatListActivity.class);
+                startActivity(intent);
                 break;
             case R.id.ll_systemPush:
-                Intent intent = new Intent(getActivity(), newsPush.class);
+                intent = new Intent(getActivity(), newsPush.class);
                 startActivity(intent);
                 break;
             case R.id.ll_entryGroup:
-                Intent entryGroup = new Intent(getActivity(), newsEntryGroup.class);
-                startActivity(entryGroup);
+                intent = new Intent(getActivity(), newsEntryGroup.class);
+                startActivity(intent);
                 break;
             case R.id.ll_entryedFroup:
-                Intent entryedFroup = new Intent(getActivity(),newsEntryedFroup.class);
-                startActivity(entryedFroup);
+                intent = new Intent(getActivity(),newsEntryedFroup.class);
+                startActivity(intent);
                 break;
             case R.id.ll_entryResult:
-                Intent entryResult = new Intent(getActivity(),newsEntryResult.class);
-                startActivity(entryResult);
+                intent = new Intent(getActivity(),newsEntryResult.class);
+                startActivity(intent);
                 break;
         }
     }

@@ -143,18 +143,18 @@
             android:name=".Group.GroupDescrible"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".Group.addGroupMembers" />
         <activity android:name=".Group.GroupSingleMember" />
-        <activity android:name=".Chat.ChatListActivity"/>
-
-        <activity android:name=".Chat.ChatSingle"
-            android:windowSoftInputMode="adjustPan|stateHidden" ></activity>
-        <activity android:name=".Chat.ChatGroup"
-            android:windowSoftInputMode="adjustPan|stateHidden" ></activity>
+        <activity android:name=".Chat.ChatListActivity" />
         <activity
-            android:name=".Group.addGroupMembers"
+            android:name=".Chat.ChatSingle"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity
+            android:name=".Chat.ChatGroup"
+            android:windowSoftInputMode="adjustPan|stateHidden" />
+        <activity android:name=".Group.addGroupMembers"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustPan"
+            ></activity>
         <activity
             android:name=".NewsItem.newsPush"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -167,10 +167,10 @@
         <activity
             android:name=".NewsItem.newsEntryedFroup"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".NewsItem.newsEntryResult"
-            android:theme="@style/AppTheme.NoActionBar">
+        <activity
+            android:name=".NewsItem.newsEntryResult"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
 
-        </activity>
     </application>
 
 </manifest>

@@ -3,37 +3,32 @@ package com.txzh.walk.Group;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hyphenate.chat.EMClient;
-import com.hyphenate.easeui.model.EaseDingMessageHelper;
 import com.hyphenate.easeui.model.EaseGlobal;
 import com.hyphenate.easeui.model.EaseMember;
-import com.hyphenate.easeui.model.EasePreferenceManager;
 import com.hyphenate.exceptions.HyphenateException;
 import com.txzh.walk.Chat.ChatSingle;
 import com.txzh.walk.R;
 import com.txzh.walk.ToolClass.Tools;
 import com.txzh.walk.customComponents.CircleImageView;
+import com.txzh.walk.customComponents.MyDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +40,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.txzh.walk.Group.GroupMembers.groupMemberInfoBeanList;
 import static com.txzh.walk.NetWork.NetWorkIP.URL_deleteGroupMember;
 import static com.txzh.walk.NetWork.NetWorkIP.URL_obtainGroupMemberDetaileData;
 
@@ -66,6 +60,7 @@ public class GroupSingleMember extends AppCompatActivity implements View.OnClick
     private Handler handler;
     private Bundle bundleRecive;
     String userID;
+    String groupID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (getSupportActionBar() != null){
@@ -122,12 +117,38 @@ public class GroupSingleMember extends AppCompatActivity implements View.OnClick
                 break;
 
             case R.id.remove_group_single_member:
-        //        removeingleMember();
-                Log.i("8888888888","我点击了移除群成员。");
-                intent = new Intent();
-                intent.putExtra("userInfo","1");
-                setResult(1,intent);
-                finish();
+                Log.i("8888888888","11111111111111我点击了移除群成员。");
+                final MyDialog dialog = new MyDialog(this,"否","是");
+                dialog.setTitle("移除群成员？");
+                dialog.setYesButton(new MyDialog.onYesOnclickListener() {
+                    @Override
+                    public void onYesClick() {
+
+                        Log.i("8888888888","2222222222222我点击了移除群成员。");
+                        removeingleMember();
+                        intent = new Intent();
+                        intent.putExtra("userInfo","1");
+                        setResult(1,intent);
+                        finish();
+
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.setNoButton(new MyDialog.onNoOnclickListener() {
+                    @Override
+                    public void onNoClick() {
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.setOnClickListener(new MyDialog.OnClickListener() {
+                    @Override
+                    public void onClick() {
+                        dialog.dismiss();
+                    }
+                });
+                dialog.show();
                 break;
         }
     }
@@ -137,7 +158,6 @@ public class GroupSingleMember extends AppCompatActivity implements View.OnClick
         bundleRecive = getIntent().getBundleExtra("userIdInfo");
         userID = bundleRecive.getString("userID");
 
-        Log.i("8888888888","我是点击的userID"+userID);
         OkHttpClient client = new OkHttpClient();
 
         FormBody formBody = new FormBody.Builder()
@@ -234,11 +254,14 @@ Log.i("hhhhhhhhhhhhhhh","个人信息：222222222"+em.bitmap);
     public void removeingleMember(){
         bundleRecive = getIntent().getBundleExtra("userIdInfo");
         userID = bundleRecive.getString("userID");
+        groupID = bundleRecive.getString("groupID");
 
+        Log.i("8888888888","我是点击的userID"+userID+"=="+groupID);
         OkHttpClient client = new OkHttpClient();
 
         FormBody formBody = new FormBody.Builder()
                 .add("userID",userID)
+                .add("groupID",groupID)
                 .build();
 
         Request request = new Request.Builder()

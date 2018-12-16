@@ -218,7 +218,7 @@ public class personalData extends AppCompatActivity implements View.OnClickListe
 
     //上传照片方式
     public void showDialog() {
-        myDialog = new MyDialog(this);
+        myDialog = new MyDialog(this,"拍照上传","本地上传");
         myDialog.setTitle("上传照片方式");
         myDialog.setYesButton(new MyDialog.onYesOnclickListener() {
             @Override

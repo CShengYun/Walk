@@ -19,7 +19,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.hyphenate.chat.EMClient;
 import com.jauker.widget.BadgeView;
 import com.txzh.walk.Adapter.FragmentAdapter;
 import com.txzh.walk.BroadcastReceiver.NetworkChangeReceiver;
@@ -27,7 +26,6 @@ import com.txzh.walk.Fragment.GroupFragment;
 import com.txzh.walk.Fragment.MapFragment;
 import com.txzh.walk.Fragment.NewsFragment;
 import com.txzh.walk.Fragment.PersonalFragment;
-import com.txzh.walk.Listener.ChatListener.MyConnectionChatListener;
 import com.txzh.walk.MyViewPager.MyViewPager;
 import com.txzh.walk.NetWork.NetWorkIP;
 import com.txzh.walk.R;
@@ -69,7 +67,7 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
     private NetworkChangeReceiver networkChangeReceiver;//监听网络状态
     public static boolean openGroup = false;
 
-    private Thread thread;
+    private Thread walkhome;
 
     private int SystemPushs;
     private int entryGroups;
@@ -122,7 +120,8 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
     protected void init(){
         handler = new Handler();
 
-        thread = new Thread(new NewsThread());
+        walkhome = new Thread(new NewsThread());
+        walkhome.start();
         fragments = new ArrayList<>();
 
         tv_map_walk_home = (TextView)findViewById(R.id.tv_map_walk_home);
@@ -200,7 +199,6 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
 
         super.onStart();
         isRunning = true;
-        thread.start();
         Log.i("nnnnnnn","线程被启动");
     }
 
@@ -307,7 +305,7 @@ public class WalkHome extends AppCompatActivity implements View.OnClickListener 
 
        @Override
        public void run() {
-           while (isRunning){
+           while (true){
                OkHttpClient client = new OkHttpClient();
                RequestBody formbody = new FormBody.Builder()
                        .add("userID", ""+ Tools.getUserID())

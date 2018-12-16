@@ -29,4 +29,7 @@ public class NetWorkIP {
     public static String URL_auditingAddGroup = URL+"/auditingAddGroup";
     public static String URL_attainAddUser = URL+"/attainAddUser";
     public static String URL_attainEntryResult = URL+"/attainEntryResult";
+    public static String URL_userAuditingAddGroup = URL+"/userAuditingAddGroup";
+    public static String URL_modifyGroupDescribe= URL+"/modifyGroupDescribe";
+    public static String URL_modifyGroupInform = URL+"/modifyGroupInform";
 }

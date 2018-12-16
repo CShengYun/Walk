@@ -19,7 +19,6 @@ import com.txzh.walk.Adapter.GroupInfoAdapter;
 import com.txzh.walk.Bean.GroupInfoBean;
 import com.txzh.walk.Chat.ChatGroup;
 import com.txzh.walk.Group.CreateGroup;
-import com.txzh.walk.Group.GroupMembers;
 import com.txzh.walk.Group.searchGroup;
 import com.txzh.walk.R;
 
@@ -38,7 +37,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static com.txzh.walk.MainActivity.userID;
 import static com.txzh.walk.HomePage.WalkHome.context;
 import static com.txzh.walk.HomePage.WalkHome.openGroup;
 import static com.txzh.walk.MainActivity.userID;
@@ -98,6 +96,8 @@ public class GroupFragment extends Fragment implements View.OnClickListener {
         GroupListListener();
         return view;
     }
+
+    
 
     //实例化和监听控件
     public void init(){
